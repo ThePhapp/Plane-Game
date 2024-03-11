@@ -1,84 +1,77 @@
-#include <SDL2/SDL.h>
-#include <iostream>
+#include "Game.h"
 
-// Kích thước cửa sổ
 const int WINDOW_WIDTH = 800;
 const int WINDOW_HEIGHT = 600;
+const int PLAYER_SIZE = 40;
 
-int main(int argc, char* argv[]) {
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    SDL_Event event;
-    bool isRunning = true;
+Game::Game() : gWindow(nullptr), gRenderer(nullptr), gPlayerSpeed(1), gIsRunning(true) {
+    initializeSDL();
+    gPlayerRect = { WINDOW_WIDTH / 2 - PLAYER_SIZE / 2, WINDOW_HEIGHT / 2 - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE };
+}
 
-    // Khởi tạo SDL
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        return 1;
-    }
+Game::~Game() {
+    cleanupSDL();
+}
 
-    // Tạo cửa sổ
-    window = SDL_CreateWindow("Simple Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
-    if (window == nullptr) {
-        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
-        SDL_Quit();
-        return 1;
-    }
+void Game::initializeSDL() {
+    SDL_Init(SDL_INIT_VIDEO);
+    gWindow = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+}
 
-    // Tạo renderer
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (renderer == nullptr) {
-        SDL_DestroyWindow(window);
-        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
-        SDL_Quit();
-        return 1;
-    }
-
-    // Vị trí ban đầu của nhân vật
-    int x = WINDOW_WIDTH / 2;
-    int y = WINDOW_HEIGHT / 2;
-
-    while (isRunning) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT) {
-                isRunning = false;
-            }
-            // Xử lý sự kiện nhấn phím
-            else if (event.type == SDL_KEYDOWN) {
-                switch (event.key.keysym.sym) {
-                    case SDLK_UP:
-                        y -= 10;
-                        break;
-                    case SDLK_DOWN:
-                        y += 10;
-                        break;
-                    case SDLK_LEFT:
-                        x -= 10;
-                        break;
-                    case SDLK_RIGHT:
-                        x += 10;
-                        break;
-                }
-            }
-        }
-
-        // Xóa màn hình
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer);
-
-        // Vẽ nhân vật
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_Rect rect = { x, y, 50, 50 };
-        SDL_RenderFillRect(renderer, &rect);
-
-        // Update màn hình
-        SDL_RenderPresent(renderer);
-    }
-
-    // Giải phóng bộ nhớ
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+void Game::cleanupSDL() {
+    SDL_DestroyRenderer(gRenderer);
+    SDL_DestroyWindow(gWindow);
     SDL_Quit();
+}
 
-    return 0;
+void Game::handleEvents() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            gIsRunning = false;
+            break;
+        }
+    }
+
+    const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+    if (currentKeyStates[SDL_SCANCODE_ESCAPE]) {
+        gIsRunning = false;
+    }
+
+    if (currentKeyStates[SDL_SCANCODE_W]) {
+        gPlayerRect.y -= gPlayerSpeed;
+    }
+    if (currentKeyStates[SDL_SCANCODE_S]) {
+        gPlayerRect.y += gPlayerSpeed;
+    }
+    if (currentKeyStates[SDL_SCANCODE_A]) {
+        gPlayerRect.x -= gPlayerSpeed;
+    }
+    if (currentKeyStates[SDL_SCANCODE_D]) {
+        gPlayerRect.x += gPlayerSpeed;
+    }
+}
+
+void Game::update() {
+    // Update game state here
+}
+
+void Game::render() {
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+    SDL_RenderClear(gRenderer);
+
+    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(gRenderer, &gPlayerRect);
+
+    SDL_RenderPresent(gRenderer);
+}
+
+void Game::run() {
+    while (gIsRunning) {
+        handleEvents();
+        update();
+        render();
+    }
 }
