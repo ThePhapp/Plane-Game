@@ -45,6 +45,9 @@ void Game::run()
         updateObstacle(); 
         handleBulletCollision();
         render();
+        if(isCollision()) {
+        quit = true;
+    }
     }
 }
 
@@ -191,10 +194,10 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
                     quit = true;
                     break;
                 case SDLK_LEFT:
-                    gSquareRect.x -= 20;
+                    gSquareRect.x -= 25;
                     break;
                 case SDLK_RIGHT:
-                    gSquareRect.x += 20;
+                    gSquareRect.x += 25;
                     break;
                 case SDLK_SPACE:
                     if (!isBulletActive)
@@ -207,4 +210,7 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
             }
         }
     }
+}
+bool Game::isCollision() {
+    return Collision::checkCollision(gSquareRect, gObstacleRect);
 }

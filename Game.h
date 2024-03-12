@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
-
+#include "Collision.h"
 class Game
 {
 public:
@@ -27,6 +27,7 @@ private:
     void render();
     void handleEvent(SDL_Event& e, bool& quit);
     void loadBackground();
+    bool isCollision();
 private:
     const int SCREEN_WIDTH = 600;
     const int SCREEN_HEIGHT = 1000;
