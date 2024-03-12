@@ -9,7 +9,7 @@ Game::Game()
     }
 
     gSquareTexture = loadTexture("image/Player.png");
-    gBulletTexture = loadTexture("image/bullet.png");
+    gBulletTexture = loadTexture("image/Bullet.png");
 
     if (gSquareTexture == nullptr || gBulletTexture == nullptr)
     {
@@ -24,8 +24,8 @@ Game::Game()
         closeSDL();
         exit(3);
     }
-    gSquareRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT - SQUARE_SIZE - 20, SQUARE_SIZE, SQUARE_SIZE};
-    gBulletRect = {0, 0, 10, 30};
+    gSquareRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT - SQUARE_SIZE , SQUARE_SIZE, SQUARE_SIZE};
+    gBulletRect = {0, 0, 50, 50};
     loadBackground();
 }
 
@@ -56,7 +56,7 @@ bool Game::initSDL()
         return false;
     }
 
-    gWindow = SDL_CreateWindow("TP", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    gWindow = SDL_CreateWindow("Shoot", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (gWindow == nullptr)
     {
         std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
