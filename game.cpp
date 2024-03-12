@@ -1,77 +1,158 @@
 #include "Game.h"
 
-const int WINDOW_WIDTH = 800;
-const int WINDOW_HEIGHT = 600;
-const int PLAYER_SIZE = 40;
+Game::Game()
+{
+    if (!initSDL())
+    {
+        std::cerr << "SDL initialization failed!" << std::endl;
+        exit(1);
+    }
 
-Game::Game() : gWindow(nullptr), gRenderer(nullptr), gPlayerSpeed(1), gIsRunning(true) {
-    initializeSDL();
-    gPlayerRect = { WINDOW_WIDTH / 2 - PLAYER_SIZE / 2, WINDOW_HEIGHT / 2 - PLAYER_SIZE / 2, PLAYER_SIZE, PLAYER_SIZE };
+    gSquareTexture = loadTexture("image/fly.png");
+    gBulletTexture = loadTexture("image/bullet.png");
+
+    if (gSquareTexture == nullptr || gBulletTexture == nullptr)
+    {
+        std::cerr << "Failed to load textures!" << std::endl;
+        closeSDL();
+        exit(2);
+    }
+
+    gSquareRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT - SQUARE_SIZE - 20, SQUARE_SIZE, SQUARE_SIZE};
+    gBulletRect = {0, 0, 10, 30};
 }
 
-Game::~Game() {
-    cleanupSDL();
+Game::~Game()
+{
+    closeSDL();
 }
 
-void Game::initializeSDL() {
-    SDL_Init(SDL_INIT_VIDEO);
-    gWindow = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+void Game::run()
+{
+    SDL_Event e;
+    bool quit = false;
+
+    while (!quit)
+    {
+        handleEvent(e, quit);
+        render();
+    }
+}
+
+bool Game::initSDL()
+{
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
+        std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    gWindow = SDL_CreateWindow("Simple SDL Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (gWindow == nullptr)
+    {
+        std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
     gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (gRenderer == nullptr)
+    {
+        std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags))
+    {
+        std::cerr << "SDL_image initialization failed: " << IMG_GetError() << std::endl;
+        return false;
+    }
+
+    return true;
 }
 
-void Game::cleanupSDL() {
+SDL_Texture* Game::loadTexture(const std::string& path)
+{
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (surface == nullptr)
+    {
+        std::cerr << "Unable to load image " << path << " SDL_image Error: " << IMG_GetError() << std::endl;
+        return nullptr;
+    }
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    SDL_FreeSurface(surface);
+
+    if (texture == nullptr)
+    {
+        std::cerr << "Unable to create texture from " << path << " SDL Error: " << SDL_GetError() << std::endl;
+        return nullptr;
+    }
+
+    return texture;
+}
+
+void Game::closeSDL()
+{
+    SDL_DestroyTexture(gSquareTexture);
+    SDL_DestroyTexture(gBulletTexture);
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
+
+    IMG_Quit();
     SDL_Quit();
 }
 
-void Game::handleEvents() {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-        case SDL_QUIT:
-            gIsRunning = false;
-            break;
-        }
-    }
-
-    const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-    if (currentKeyStates[SDL_SCANCODE_ESCAPE]) {
-        gIsRunning = false;
-    }
-
-    if (currentKeyStates[SDL_SCANCODE_W]) {
-        gPlayerRect.y -= gPlayerSpeed;
-    }
-    if (currentKeyStates[SDL_SCANCODE_S]) {
-        gPlayerRect.y += gPlayerSpeed;
-    }
-    if (currentKeyStates[SDL_SCANCODE_A]) {
-        gPlayerRect.x -= gPlayerSpeed;
-    }
-    if (currentKeyStates[SDL_SCANCODE_D]) {
-        gPlayerRect.x += gPlayerSpeed;
-    }
-}
-
-void Game::update() {
-    // Update game state here
-}
-
-void Game::render() {
-    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 255);
+void Game::render()
+{
     SDL_RenderClear(gRenderer);
 
-    SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 255);
-    SDL_RenderFillRect(gRenderer, &gPlayerRect);
+    SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
+
+    if (isBulletActive)
+    {
+        gBulletRect.y -= 2;
+        SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &gBulletRect);
+
+        if (gBulletRect.y + gBulletRect.h < 0)
+        {
+            isBulletActive = false;
+        }
+    }
 
     SDL_RenderPresent(gRenderer);
 }
 
-void Game::run() {
-    while (gIsRunning) {
-        handleEvents();
-        update();
-        render();
+void Game::handleEvent(SDL_Event& e, bool& quit)
+{
+    while (SDL_PollEvent(&e) != 0)
+    {
+        if (e.type == SDL_QUIT)
+        {
+            quit = true;
+        }
+        else if (e.type == SDL_KEYDOWN)
+        {
+            switch (e.key.keysym.sym)
+            {
+                case SDLK_ESCAPE:
+                    quit = true;
+                    break;
+                case SDLK_LEFT:
+                    gSquareRect.x -= 10;
+                    break;
+                case SDLK_RIGHT:
+                    gSquareRect.x += 10;
+                    break;
+                case SDLK_SPACE:
+                    if (!isBulletActive)
+                    {
+                        isBulletActive = true;
+                        gBulletRect.x = gSquareRect.x + (SQUARE_SIZE - gBulletRect.w) / 2;
+                        gBulletRect.y = gSquareRect.y - gBulletRect.h;
+                    }
+                    break;
+            }
+        }
     }
 }
