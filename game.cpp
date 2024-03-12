@@ -26,6 +26,7 @@ Game::Game()
     }
     gSquareRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT - SQUARE_SIZE - 20, SQUARE_SIZE, SQUARE_SIZE};
     gBulletRect = {0, 0, 10, 30};
+    loadBackground();
 }
 
 Game::~Game()
@@ -78,7 +79,17 @@ bool Game::initSDL()
 
     return true;
 }
+void Game::loadBackground()
+{
+    gBackgroundTexture = loadTexture("image/Background.png");
 
+    if (gBackgroundTexture == nullptr)
+    {
+        std::cerr << "Failed to load background texture!" << std::endl;
+        closeSDL();
+        exit(3);
+    }
+}
 SDL_Texture* Game::loadTexture(const std::string& path)
 {
     SDL_Surface* surface = IMG_Load(path.c_str());
@@ -99,7 +110,6 @@ SDL_Texture* Game::loadTexture(const std::string& path)
 
     return texture;
 }
-
 void Game::closeSDL()
 {
     SDL_DestroyTexture(gSquareTexture);
@@ -145,9 +155,10 @@ void Game::handleBulletCollision()
 void Game::render()
 {
     SDL_RenderClear(gRenderer);
-
+    SDL_RenderCopy(gRenderer, gBackgroundTexture, nullptr, nullptr);
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
+    
 
     if (isBulletActive)
     {
