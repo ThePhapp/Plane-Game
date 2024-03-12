@@ -8,7 +8,7 @@ Game::Game()
         exit(1);
     }
 
-    gSquareTexture = loadTexture("image/fly.png");
+    gSquareTexture = loadTexture("image/Player.png");
     gBulletTexture = loadTexture("image/bullet.png");
 
     if (gSquareTexture == nullptr || gBulletTexture == nullptr)
@@ -41,8 +41,8 @@ void Game::run()
     while (!quit)
     {
         handleEvent(e, quit);
-        updateObstacle(); // Thêm hàm cập nhật vật cản
-        handleBulletCollision(); // Thêm xử lý va chạm đạn và vật cản
+        updateObstacle(); 
+        handleBulletCollision();
         render();
     }
 }
@@ -112,16 +112,14 @@ void Game::closeSDL()
 }
 void Game::updateObstacle()
 {
-    // Nếu không có vật cản active, thì có thể sinh ra vật cản mới
     if (!isObstacleActive)
     {
         spawnObstacle();
     }
 
-    // Di chuyển vật cản lên trên
+    // Di chuyển vật vản
     gObstacleRect.y += 1;
 
-    // Kiểm tra nếu vật cản ra khỏi màn hình, thì đặt lại trạng thái
     if (gObstacleRect.y > SCREEN_HEIGHT)
     {
         isObstacleActive = false;
@@ -130,14 +128,14 @@ void Game::updateObstacle()
 
 void Game::spawnObstacle()
 {
-    // Sinh ra vật cản ở vị trí ngẫu nhiên
+    // Sinh vật cản
     gObstacleRect = {rand() % (SCREEN_WIDTH - 50), 0, 50, 50};
     isObstacleActive = true;
 }
 
 void Game::handleBulletCollision()
 {
-    // Nếu đạn và vật cản trùng nhau, thì đặt lại trạng thái của cả hai
+    // Đạn trùng thì dừng
     if (isBulletActive && SDL_HasIntersection(&gBulletRect, &gObstacleRect))
     {
         isBulletActive = false;
@@ -149,7 +147,7 @@ void Game::render()
     SDL_RenderClear(gRenderer);
 
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
-    SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect); // Use gObstacleRect for rendering
+    SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
 
     if (isBulletActive)
     {
