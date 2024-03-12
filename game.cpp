@@ -195,9 +195,16 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
                     break;
                 case SDLK_LEFT:
                     gSquareRect.x -= 25;
+                    if (gSquareRect.x < 0) {
+                        gSquareRect.x = 0;
+                    }
                     break;
                 case SDLK_RIGHT:
                     gSquareRect.x += 25;
+                    if(gSquareRect.x > SCREEN_WIDTH - gSquareRect.w) 
+                    {
+                        gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;
+                    }
                     break;
                 case SDLK_SPACE:
                     if (!isBulletActive)
