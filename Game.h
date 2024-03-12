@@ -17,13 +17,20 @@ private:
     bool initSDL();
     SDL_Texture* loadTexture(const std::string& path);
     void closeSDL();
+    bool isBulletActive = false;
+    bool isObstacleActive = false;
+    SDL_Texture* gObstacleTexture = nullptr;
+    SDL_Rect gObstacleRect;
 
+    void spawnObstacle();
+    void updateObstacle();
+    void handleBulletCollision();
     void render();
     void handleEvent(SDL_Event& e, bool& quit);
 
 private:
-    const int SCREEN_WIDTH = 1200;
-    const int SCREEN_HEIGHT = 800;
+    const int SCREEN_WIDTH = 600;
+    const int SCREEN_HEIGHT = 1000;
     const int SQUARE_SIZE = 60;
 
     SDL_Window* gWindow = nullptr;
@@ -33,7 +40,7 @@ private:
     SDL_Rect gSquareRect;
     SDL_Rect gBulletRect;
 
-    bool isBulletActive = false;
+
 };
 
 #endif // GAME_H

@@ -17,7 +17,13 @@ Game::Game()
         closeSDL();
         exit(2);
     }
-
+    gObstacleTexture = loadTexture("image/obstacle.png");
+    if (gObstacleTexture == nullptr)
+    {
+        std::cerr << "Failed to load obstacle texture!" << std::endl;
+        closeSDL();
+        exit(3);
+    }
     gSquareRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT - SQUARE_SIZE - 20, SQUARE_SIZE, SQUARE_SIZE};
     gBulletRect = {0, 0, 10, 30};
 }
@@ -35,6 +41,8 @@ void Game::run()
     while (!quit)
     {
         handleEvent(e, quit);
+        updateObstacle(); // Thêm hàm cập nhật vật cản
+        handleBulletCollision(); // Thêm xử lý va chạm đạn và vật cản
         render();
     }
 }
@@ -47,7 +55,7 @@ bool Game::initSDL()
         return false;
     }
 
-    gWindow = SDL_CreateWindow("Simple SDL Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    gWindow = SDL_CreateWindow("TP", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (gWindow == nullptr)
     {
         std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
@@ -102,16 +110,50 @@ void Game::closeSDL()
     IMG_Quit();
     SDL_Quit();
 }
+void Game::updateObstacle()
+{
+    // Nếu không có vật cản active, thì có thể sinh ra vật cản mới
+    if (!isObstacleActive)
+    {
+        spawnObstacle();
+    }
 
+    // Di chuyển vật cản lên trên
+    gObstacleRect.y += 1;
+
+    // Kiểm tra nếu vật cản ra khỏi màn hình, thì đặt lại trạng thái
+    if (gObstacleRect.y > SCREEN_HEIGHT)
+    {
+        isObstacleActive = false;
+    }
+}
+
+void Game::spawnObstacle()
+{
+    // Sinh ra vật cản ở vị trí ngẫu nhiên
+    gObstacleRect = {rand() % (SCREEN_WIDTH - 50), 0, 50, 50};
+    isObstacleActive = true;
+}
+
+void Game::handleBulletCollision()
+{
+    // Nếu đạn và vật cản trùng nhau, thì đặt lại trạng thái của cả hai
+    if (isBulletActive && SDL_HasIntersection(&gBulletRect, &gObstacleRect))
+    {
+        isBulletActive = false;
+        isObstacleActive = false;
+    }
+}
 void Game::render()
 {
     SDL_RenderClear(gRenderer);
 
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
+    SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect); // Use gObstacleRect for rendering
 
     if (isBulletActive)
     {
-        gBulletRect.y -= 2;
+        gBulletRect.y -= 3;
         SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &gBulletRect);
 
         if (gBulletRect.y + gBulletRect.h < 0)
@@ -122,6 +164,7 @@ void Game::render()
 
     SDL_RenderPresent(gRenderer);
 }
+
 
 void Game::handleEvent(SDL_Event& e, bool& quit)
 {
@@ -139,10 +182,10 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
                     quit = true;
                     break;
                 case SDLK_LEFT:
-                    gSquareRect.x -= 10;
+                    gSquareRect.x -= 20;
                     break;
                 case SDLK_RIGHT:
-                    gSquareRect.x += 10;
+                    gSquareRect.x += 20;
                     break;
                 case SDLK_SPACE:
                     if (!isBulletActive)
