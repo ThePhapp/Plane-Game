@@ -29,8 +29,8 @@ private:
     void loadBackground();
     bool isCollision();
 private:
-    const int SCREEN_WIDTH = 600;
-    const int SCREEN_HEIGHT = 1000;
+    const int SCREEN_WIDTH = 1300;
+    const int SCREEN_HEIGHT = 900;
     const int SQUARE_SIZE = 60;
 
     SDL_Window* gWindow = nullptr;

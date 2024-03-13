@@ -24,8 +24,10 @@ Game::Game()
         closeSDL();
         exit(3);
     }
-    gSquareRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT - SQUARE_SIZE , SQUARE_SIZE, SQUARE_SIZE};
-    gBulletRect = {0, 0, 50, 50};
+    gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
+    gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+
+
     loadBackground();
 }
 
@@ -46,8 +48,8 @@ void Game::run()
         handleBulletCollision();
         render();
         if(isCollision()) {
-        quit = true;
-    }
+            quit = true;
+        }
     }
 }
 
@@ -131,18 +133,19 @@ void Game::updateObstacle()
     }
 
     // Di chuyển vật vản
-    gObstacleRect.y += 1;
+    gObstacleRect.x -= 1;
 
-    if (gObstacleRect.y > SCREEN_HEIGHT)
-    {
-        isObstacleActive = false;
-    }
+if (gObstacleRect.x + gObstacleRect.w < 0)
+{
+    isObstacleActive = false;
+}
+
 }
 
 void Game::spawnObstacle()
 {
     // Sinh vật cản
-    gObstacleRect = {rand() % (SCREEN_WIDTH - 50), 0, 50, 50};
+    gObstacleRect = {SCREEN_WIDTH - 50, rand() % (SCREEN_HEIGHT - 50), 50, 50};
     isObstacleActive = true;
 }
 
@@ -164,15 +167,16 @@ void Game::render()
     
 
     if (isBulletActive)
-    {
-        gBulletRect.y -= 3;
-        SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &gBulletRect);
+{
+    gBulletRect.x += 4;
+    SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &gBulletRect);
 
-        if (gBulletRect.y + gBulletRect.h < 0)
-        {
-            isBulletActive = false;
-        }
+    if (gBulletRect.x > SCREEN_WIDTH)
+    {
+        isBulletActive = false;
     }
+}
+
 
     SDL_RenderPresent(gRenderer);
 }
@@ -193,7 +197,21 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
                 case SDLK_ESCAPE:
                     quit = true;
                     break;
-                case SDLK_LEFT:
+                case SDLK_UP:
+                    gSquareRect.y -= 30;
+                    if (gSquareRect.y < 0)
+              {
+                gSquareRect.y = 0;
+              }
+                    break;
+                case SDLK_DOWN:
+                    gSquareRect.y += 30;
+                    if(gSquareRect.y > SCREEN_HEIGHT - gSquareRect.w) 
+                    {
+                        gSquareRect.y = SCREEN_HEIGHT - gSquareRect.w;
+                    }
+                    break;
+                    case SDLK_LEFT:
                     gSquareRect.x -= 25;
                     if (gSquareRect.x < 0) {
                         gSquareRect.x = 0;
@@ -207,17 +225,17 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
                     }
                     break;
                 case SDLK_SPACE:
-                    if (!isBulletActive)
-                    {
+                   if (!isBulletActive)
+                      {
                         isBulletActive = true;
-                        gBulletRect.x = gSquareRect.x + (SQUARE_SIZE - gBulletRect.w) / 2;
-                        gBulletRect.y = gSquareRect.y - gBulletRect.h;
-                    }
-                    break;
+                        gBulletRect.x = gSquareRect.x + SQUARE_SIZE; 
+                        gBulletRect.y = gSquareRect.y + SQUARE_SIZE / 2 - gBulletRect.h / 2;
+                     }
+                     break;
             }
         }
     }
 }
 bool Game::isCollision() {
-    return Collision::checkCollision(gSquareRect, gObstacleRect);
+     return Collision::checkCollision(gSquareRect , gObstacleRect);
 }
