@@ -29,6 +29,7 @@ Game::Game()
 
 
     loadBackground();
+    loadTextTexture("Hiiiiii");
 }
 
 Game::~Game()
@@ -81,6 +82,11 @@ bool Game::initSDL()
         std::cerr << "SDL_image initialization failed: " << IMG_GetError() << std::endl;
         return false;
     }
+    if (TTF_Init() == -1)
+    {
+        std::cerr << "SDL_ttf initialization failed: " << TTF_GetError() << std::endl;
+        return false;
+    }
 
     return true;
 }
@@ -115,6 +121,26 @@ SDL_Texture* Game::loadTexture(const std::string& path)
 
     return texture;
 }
+void Game::loadTextTexture(const std::string& text) {
+    TTF_Font* font = TTF_OpenFont("image/subwt.ttf", 28);
+    if (font == nullptr) {
+        std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
+        return;
+    }
+    SDL_Color textColor = {255, 255, 255};
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font,text.c_str(), textColor);
+    if (textSurface == nullptr) {
+        std::cerr << "Unable to render text surface: " << TTF_GetError() << std::endl;
+        TTF_CloseFont(font);
+        return;
+    }
+    textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+    if (textTexture == nullptr) {
+        std::cerr << "Unable to create texture from text surface: " << SDL_GetError() << std::endl;
+    }
+    SDL_FreeSurface(textSurface);
+    TTF_CloseFont(font);
+}
 void Game::closeSDL()
 {
     SDL_DestroyTexture(gSquareTexture);
@@ -124,6 +150,7 @@ void Game::closeSDL()
 
     IMG_Quit();
     SDL_Quit();
+    TTF_Quit();
 }
 void Game::updateObstacle()
 {
@@ -164,6 +191,7 @@ void Game::render()
     SDL_RenderCopy(gRenderer, gBackgroundTexture, nullptr, nullptr);
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
+    SDL_RenderCopy(gRenderer, textTexture, nullptr, &dstRect);
     
 
     if (isBulletActive)
