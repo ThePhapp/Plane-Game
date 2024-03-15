@@ -7,7 +7,6 @@ Game::Game()
         std::cerr << "SDL initialization failed!" << std::endl;
         exit(1);
     }
-
     gSquareTexture = loadTexture("image/Player.png");
     gBulletTexture = loadTexture("image/Bullet.png");
 
@@ -26,8 +25,6 @@ Game::Game()
     }
     gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
     gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
-
-
     loadBackground();
     this->points = 0;
 }
@@ -61,21 +58,18 @@ bool Game::initSDL()
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
         return false;
     }
-
     gWindow = SDL_CreateWindow("Shoot", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (gWindow == nullptr)
     {
         std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
         return false;
     }
-
     gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
     if (gRenderer == nullptr)
     {
         std::cerr << "Renderer creation failed: " << SDL_GetError() << std::endl;
         return false;
     }
-
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags))
     {
@@ -90,6 +84,7 @@ bool Game::initSDL()
 
     return true;
 }
+
 void Game::loadBackground()
 {
     gBackgroundTexture = loadTexture("image/Background.png");
@@ -101,6 +96,7 @@ void Game::loadBackground()
         exit(3);
     }
 }
+
 SDL_Texture* Game::loadTexture(const std::string& path)
 {
     SDL_Surface* surface = IMG_Load(path.c_str());
@@ -109,16 +105,13 @@ SDL_Texture* Game::loadTexture(const std::string& path)
         std::cerr << "Unable to load image " << path << " SDL_image Error: " << IMG_GetError() << std::endl;
         return nullptr;
     }
-
     SDL_Texture* texture = SDL_CreateTextureFromSurface(gRenderer, surface);
     SDL_FreeSurface(surface);
-
     if (texture == nullptr)
     {
         std::cerr << "Unable to create texture from " << path << " SDL Error: " << SDL_GetError() << std::endl;
         return nullptr;
     }
-
     return texture;
 }
 void Game::renderPoints() {
@@ -146,6 +139,7 @@ void Game::renderPoints() {
     SDL_RenderCopy(gRenderer, pointsTexture, nullptr, &dstRect);
     SDL_DestroyTexture(pointsTexture); 
 }
+
 void Game::closeSDL()
 {
     SDL_DestroyTexture(gSquareTexture);
@@ -157,40 +151,7 @@ void Game::closeSDL()
     SDL_Quit();
     TTF_Quit();
 }
-void Game::updateObstacle()
-{
-    if (!isObstacleActive)
-    {
-        spawnObstacle();
-    }
 
-    // Di chuyển vật vản
-    gObstacleRect.x -= 1;
-
-if (gObstacleRect.x + gObstacleRect.w < 0)
-{
-    isObstacleActive = false;
-}
-
-}
-
-void Game::spawnObstacle()
-{
-    // Sinh vật cản
-    gObstacleRect = {SCREEN_WIDTH - 50, rand() % (SCREEN_HEIGHT - 50), 50, 50};
-    isObstacleActive = true;
-}
-
-void Game::handleBulletCollision()
-{
-    // Đạn trùng thì dừng
-    if (isBulletActive && SDL_HasIntersection(&gBulletRect, &gObstacleRect))
-    {
-        isBulletActive = false;
-        isObstacleActive = false;
-        this->points++;
-    }
-}
 void Game::render()
 {
     SDL_RenderClear(gRenderer);
@@ -199,7 +160,6 @@ void Game::render()
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
     renderPoints();
     
-
     if (isBulletActive)
 {
     gBulletRect.x += 4;
@@ -210,11 +170,8 @@ void Game::render()
         isBulletActive = false;
     }
 }
-
-
     SDL_RenderPresent(gRenderer);
 }
-
 
 void Game::handleEvent(SDL_Event& e, bool& quit)
 {
