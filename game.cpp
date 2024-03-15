@@ -29,7 +29,7 @@ Game::Game()
 
 
     loadBackground();
-    loadTextTexture("Hiiiiii");
+    this->points = 0;
 }
 
 Game::~Game()
@@ -121,25 +121,30 @@ SDL_Texture* Game::loadTexture(const std::string& path)
 
     return texture;
 }
-void Game::loadTextTexture(const std::string& text) {
+void Game::renderPoints() {
+    std::string pointString = "Points: " + std::to_string(points);
     TTF_Font* font = TTF_OpenFont("image/subwt.ttf", 28);
     if (font == nullptr) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return;
     }
     SDL_Color textColor = {255, 255, 255};
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font,text.c_str(), textColor);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, pointString.c_str(), textColor);
     if (textSurface == nullptr) {
         std::cerr << "Unable to render text surface: " << TTF_GetError() << std::endl;
         TTF_CloseFont(font);
         return;
     }
-    textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-    if (textTexture == nullptr) {
+    SDL_Texture* pointsTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+    if (pointsTexture == nullptr) {
         std::cerr << "Unable to create texture from text surface: " << SDL_GetError() << std::endl;
     }
     SDL_FreeSurface(textSurface);
     TTF_CloseFont(font);
+
+    SDL_Rect dstRect = {10, 10, textSurface->w, textSurface->h}; 
+    SDL_RenderCopy(gRenderer, pointsTexture, nullptr, &dstRect);
+    SDL_DestroyTexture(pointsTexture); 
 }
 void Game::closeSDL()
 {
@@ -183,6 +188,7 @@ void Game::handleBulletCollision()
     {
         isBulletActive = false;
         isObstacleActive = false;
+        this->points++;
     }
 }
 void Game::render()
@@ -191,7 +197,7 @@ void Game::render()
     SDL_RenderCopy(gRenderer, gBackgroundTexture, nullptr, nullptr);
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
-    SDL_RenderCopy(gRenderer, textTexture, nullptr, &dstRect);
+    renderPoints();
     
 
     if (isBulletActive)

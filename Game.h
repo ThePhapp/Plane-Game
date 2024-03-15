@@ -30,10 +30,12 @@ private:
     void loadBackground();
     void loadTextTexture(const std::string& text);
     bool isCollision();
+    void renderPoints();
 private:
     const int SCREEN_WIDTH = 1300;
     const int SCREEN_HEIGHT = 900;
     const int SQUARE_SIZE = 60;
+    int points;
 
     SDL_Window* gWindow = nullptr;
     SDL_Renderer* gRenderer = nullptr;
