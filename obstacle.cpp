@@ -6,8 +6,7 @@ void Game::updateObstacle()
     {
         spawnObstacle();
     }
-    // Di chuyển vật vản
-    gObstacleRect.x -= 1;
+    gObstacleRect.x -= 2;      //toc do obstacle
 
 if (gObstacleRect.x + gObstacleRect.w < 0)
 {
@@ -17,7 +16,7 @@ if (gObstacleRect.x + gObstacleRect.w < 0)
 
 void Game::spawnObstacle()
 {
-    // Sinh vật cản
+    ///make obstacle
     gObstacleRect = {SCREEN_WIDTH - 50, rand() % (SCREEN_HEIGHT - 50), 50, 50};
     isObstacleActive = true;
 }

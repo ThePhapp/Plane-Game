@@ -31,6 +31,7 @@ private:
     void loadTextTexture(const std::string& text);
     bool isCollision();
     void renderPoints();
+    void renderGameOver();
 private:
     const int SCREEN_WIDTH = 1300;
     const int SCREEN_HEIGHT = 900;

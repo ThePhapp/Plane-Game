@@ -38,15 +38,44 @@ void Game::run()
 {
     SDL_Event e;
     bool quit = false;
+    bool gameOver = false;
 
     while (!quit)
     {
-        handleEvent(e, quit);
-        updateObstacle(); 
-        handleBulletCollision();
-        render();
-        if(isCollision()) {
-            quit = true;
+        while(!gameOver && !quit)
+        {
+            handleEvent(e, quit);
+            updateObstacle(); 
+            handleBulletCollision();
+            render();
+            if(isCollision()) {
+                gameOver = true;
+                renderGameOver();
+                isObstacleActive = false;
+            }
+        }
+        
+        while(gameOver && !quit)
+        {
+            while (SDL_PollEvent(&e) != 0)
+            {
+                if (e.type == SDL_QUIT)
+                {
+                    quit = true;
+                }
+                else if (e.type == SDL_KEYDOWN)
+                {
+                    if (e.key.keysym.sym == SDLK_SPACE)
+                    {
+                        gameOver = false;
+                        points = 0;
+                        gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
+                        gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+                    }
+                }
+            }
+            renderGameOver();
+            SDL_RenderPresent(gRenderer);
         }
     }
 }
@@ -116,16 +145,16 @@ SDL_Texture* Game::loadTexture(const std::string& path)
 }
 void Game::renderPoints() {
     std::string pointString = "Points: " + std::to_string(points);
-    TTF_Font* font = TTF_OpenFont("image/subwt.ttf", 28);
-    if (font == nullptr) {
+    TTF_Font* font1 = TTF_OpenFont("font/2.ttf", 35);
+    if (font1 == nullptr) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return;
     }
     SDL_Color textColor = {255, 255, 255};
-    SDL_Surface* textSurface = TTF_RenderText_Solid(font, pointString.c_str(), textColor);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font1, pointString.c_str(), textColor);
     if (textSurface == nullptr) {
         std::cerr << "Unable to render text surface: " << TTF_GetError() << std::endl;
-        TTF_CloseFont(font);
+        TTF_CloseFont(font1);
         return;
     }
     SDL_Texture* pointsTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
@@ -133,11 +162,58 @@ void Game::renderPoints() {
         std::cerr << "Unable to create texture from text surface: " << SDL_GetError() << std::endl;
     }
     SDL_FreeSurface(textSurface);
-    TTF_CloseFont(font);
+    TTF_CloseFont(font1);
 
     SDL_Rect dstRect = {10, 10, textSurface->w, textSurface->h}; 
     SDL_RenderCopy(gRenderer, pointsTexture, nullptr, &dstRect);
     SDL_DestroyTexture(pointsTexture); 
+}
+
+void Game::renderGameOver() 
+{
+    TTF_Font* font2 = TTF_OpenFont("font/1.ttf", 60);
+    if(font2 == nullptr) {
+        std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    SDL_Color textColorGV = {225, 0, 0};
+    SDL_Surface* gameOverSurface = TTF_RenderText_Solid(font2, "GameOver", textColorGV);
+    if (gameOverSurface == nullptr) {
+        std::cerr << "Unable to render Game Over surface: " << TTF_GetError() << std::endl;
+        TTF_CloseFont(font2);
+        return;
+    }
+
+    SDL_Texture* gameOverTexture = SDL_CreateTextureFromSurface(gRenderer, gameOverSurface);
+    if (gameOverTexture == nullptr) {
+        std::cerr << "Unable to create texture from Game Over surface: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(gameOverSurface);
+        TTF_CloseFont(font2);
+        return;
+    }
+    SDL_Rect gameOverRect = {(SCREEN_WIDTH - gameOverSurface->w) / 2, (SCREEN_HEIGHT - gameOverSurface->h) / 2, gameOverSurface->w, gameOverSurface->h};
+
+    SDL_Surface* playAgainSurface = TTF_RenderText_Solid(font2, "Press Space to PlayAgain !!!", textColorGV);
+    if (playAgainSurface == nullptr) {
+        std::cerr << "Unable to render Play Again surface: " << TTF_GetError() << std::endl;
+        SDL_DestroyTexture(gameOverTexture);
+        TTF_CloseFont(font2);
+        return;
+    }
+
+    SDL_Texture* playAgainTexture = SDL_CreateTextureFromSurface(gRenderer, playAgainSurface);
+    if (playAgainTexture == nullptr) {
+        std::cerr << "Unable to create texture from Play Again surface: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(playAgainSurface);
+        SDL_DestroyTexture(gameOverTexture);
+        TTF_CloseFont(font2);
+        return;
+    }
+    SDL_Rect playAgainRect = {(SCREEN_WIDTH - playAgainSurface->w) / 2, gameOverRect.y + gameOverRect.h + 20, playAgainSurface->w, playAgainSurface->h};
+
+    SDL_RenderCopy(gRenderer, gameOverTexture, nullptr, &gameOverRect);    //render
+    SDL_RenderCopy(gRenderer, playAgainTexture, nullptr, &playAgainRect);
 }
 
 void Game::closeSDL()
@@ -162,7 +238,7 @@ void Game::render()
     
     if (isBulletActive)
 {
-    gBulletRect.x += 4;
+    gBulletRect.x += 4;     //toc do vien dan
     SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &gBulletRect);
 
     if (gBulletRect.x > SCREEN_WIDTH)
