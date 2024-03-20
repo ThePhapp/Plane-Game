@@ -9,7 +9,7 @@ Game::Game()
     }
     gSquareTexture = loadTexture("image/Player.png");
     gBulletTexture = loadTexture("image/Bullet.png");
-
+    
     if (gSquareTexture == nullptr || gBulletTexture == nullptr)
     {
         std::cerr << "Failed to load textures!" << std::endl;
@@ -171,7 +171,7 @@ void Game::renderPoints() {
 
 void Game::renderGameOver() 
 {
-    TTF_Font* font2 = TTF_OpenFont("font/1.ttf", 60);
+    TTF_Font* font2 = TTF_OpenFont("font/1.ttf", 70);
     if(font2 == nullptr) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
         return;
@@ -257,51 +257,61 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
         {
             quit = true;
         }
-        else if (e.type == SDL_KEYDOWN)
+    }
+    
+    const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+    if (currentKeyStates[SDL_SCANCODE_ESCAPE])
+    {
+        quit = true;
+    }
+
+    if (currentKeyStates[SDL_SCANCODE_UP])
+    {
+        gSquareRect.y -= 2;
+        if (gSquareRect.y < 0)
         {
-            switch (e.key.keysym.sym)
-            {
-                case SDLK_ESCAPE:
-                    quit = true;
-                    break;
-                case SDLK_UP:
-                    gSquareRect.y -= 30;
-                    if (gSquareRect.y < 0)
-              {
-                gSquareRect.y = 0;
-              }
-                    break;
-                case SDLK_DOWN:
-                    gSquareRect.y += 30;
-                    if(gSquareRect.y > SCREEN_HEIGHT - gSquareRect.w) 
-                    {
-                        gSquareRect.y = SCREEN_HEIGHT - gSquareRect.w;
-                    }
-                    break;
-                    case SDLK_LEFT:
-                    gSquareRect.x -= 25;
-                    if (gSquareRect.x < 0) {
-                        gSquareRect.x = 0;
-                    }
-                    break;
-                case SDLK_RIGHT:
-                    gSquareRect.x += 25;
-                    if(gSquareRect.x > SCREEN_WIDTH - gSquareRect.w) 
-                    {
-                        gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;
-                    }
-                    break;
-                case SDLK_SPACE:
-                   if (!isBulletActive)
-                      {
-                        isBulletActive = true;
-                        gBulletRect.x = gSquareRect.x + SQUARE_SIZE; 
-                        gBulletRect.y = gSquareRect.y + SQUARE_SIZE / 2 - gBulletRect.h / 2;
-                     }
-                     break;
-            }
+            gSquareRect.y = 0;
         }
     }
+
+    if (currentKeyStates[SDL_SCANCODE_DOWN])
+    {
+        gSquareRect.y += 2;
+        if(gSquareRect.y > SCREEN_HEIGHT - gSquareRect.w) 
+        {
+            gSquareRect.y = SCREEN_HEIGHT - gSquareRect.w;
+        }
+    }
+
+    if (currentKeyStates[SDL_SCANCODE_LEFT])
+    {
+        gSquareRect.x -= 1;
+        if (gSquareRect.x < 0) 
+        {
+            gSquareRect.x = 0;
+        }
+    }
+
+    if (currentKeyStates[SDL_SCANCODE_RIGHT])
+    {
+        gSquareRect.x += 1;
+        if(gSquareRect.x > SCREEN_WIDTH - gSquareRect.w) 
+        {
+            gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;
+        }
+    }
+
+    if (currentKeyStates[SDL_SCANCODE_SPACE])
+    {
+        if (!isBulletActive)
+        {
+            isBulletActive = true;
+            gBulletRect.x = gSquareRect.x + SQUARE_SIZE; 
+            gBulletRect.y = gSquareRect.y + SQUARE_SIZE / 2 - gBulletRect.h / 2;
+        }
+    }
+
+        
 }
 bool Game::isCollision() {
      return Collision::checkCollision(gSquareRect , gObstacleRect);
