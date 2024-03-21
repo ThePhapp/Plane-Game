@@ -27,6 +27,8 @@ Game::Game()
     gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
     loadBackground();
     this->points = 0;
+    currentHealth = maxHealth;
+    gHealth = loadTexture("image/health.png");
 }
 
 Game::~Game()
@@ -49,9 +51,13 @@ void Game::run()
             handleBulletCollision();
             render();
             if(isCollision()) {
-                gameOver = true;
-                renderGameOver();
+                currentHealth -= 1;
                 isObstacleActive = false;
+                if(currentHealth == 0) {
+                    gameOver = true;
+                    renderGameOver();
+                    isObstacleActive = false;
+                }
             }
         }
         
@@ -71,6 +77,7 @@ void Game::run()
                         points = 0;
                         gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
                         gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+                        currentHealth = maxHealth;
                     }
                 }
             }
@@ -169,6 +176,20 @@ void Game::renderPoints() {
     SDL_DestroyTexture(pointsTexture); 
 }
 
+void Game::renderHealth()
+{
+    int heartX = 10;
+    int heartY = SCREEN_HEIGHT - HEALTH_HEIGHT - 10;
+
+    for (int i = 0; i < maxHealth; ++i) {
+        SDL_Rect destRect = {heartX, heartY, HEALTH_WIDTH, HEALTH_HEIGHT};
+        if (i < currentHealth) {
+            SDL_RenderCopy(gRenderer, gHealth, nullptr, &destRect);
+        }
+        heartX += HEALTH_WIDTH + HEALTH_SPACING;
+    }
+}
+
 void Game::renderGameOver() 
 {
     TTF_Font* font2 = TTF_OpenFont("font/1.ttf", 70);
@@ -235,6 +256,7 @@ void Game::render()
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
     renderPoints();
+    renderHealth();
     
     if (isBulletActive)
 {
@@ -291,7 +313,7 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
             gSquareRect.x = 0;
         }
     }
-
+    
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {
         gSquareRect.x += 1;
