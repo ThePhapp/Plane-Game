@@ -17,6 +17,6 @@ if (gObstacleRect.x + gObstacleRect.w < 0)
 void Game::spawnObstacle()
 {
     ///make obstacle
-    gObstacleRect = {SCREEN_WIDTH - 50, rand() % (SCREEN_HEIGHT - 50), 50, 50};
+    gObstacleRect = {SCREEN_WIDTH - 50, rand() % (SCREEN_HEIGHT - 50), 80, 80};
     isObstacleActive = true;
 }

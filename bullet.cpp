@@ -6,6 +6,6 @@ void Game::handleBulletCollision()
     {
         isBulletActive = false;
         isObstacleActive = false;
-        this->points++;
+        this->points += 100;
     }
 }

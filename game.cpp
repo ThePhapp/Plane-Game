@@ -7,28 +7,13 @@ Game::Game()
         std::cerr << "SDL initialization failed!" << std::endl;
         exit(1);
     }
-    gSquareTexture = loadTexture("image/Player.png");
-    gBulletTexture = loadTexture("image/Bullet.png");
     
-    if (gSquareTexture == nullptr || gBulletTexture == nullptr)
-    {
-        std::cerr << "Failed to load textures!" << std::endl;
-        closeSDL();
-        exit(2);
-    }
-    gObstacleTexture = loadTexture("image/obstacle.png");
-    if (gObstacleTexture == nullptr)
-    {
-        std::cerr << "Failed to load obstacle texture!" << std::endl;
-        closeSDL();
-        exit(3);
-    }
     gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
     gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+    loadImagee();
     loadBackground();
     this->points = 0;
     currentHealth = maxHealth;
-    gHealth = loadTexture("image/health.png");
 }
 
 Game::~Game()
@@ -38,6 +23,7 @@ Game::~Game()
 
 void Game::run()
 {
+    srand(time(NULL));
     SDL_Event e;
     bool quit = false;
     bool gameOver = false;
@@ -107,18 +93,57 @@ bool Game::initSDL()
         return false;
     }
     int imgFlags = IMG_INIT_PNG;
-    if (!(IMG_Init(imgFlags) & imgFlags))
+    if (!(IMG_Init(imgFlags) & imgFlags))     //init sdl_image
     {
         std::cerr << "SDL_image initialization failed: " << IMG_GetError() << std::endl;
         return false;
     }
-    if (TTF_Init() == -1)
+    if (TTF_Init() == -1)    //init sdl_ttf
     {
         std::cerr << "SDL_ttf initialization failed: " << TTF_GetError() << std::endl;
         return false;
     }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)    //init sdl_mixer
+    {
+        std::cerr << "SDL_mixer could not initialize! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        return false;
+    }
 
     return true;
+}
+
+void Game::loadImagee()
+{
+    gSquareTexture = loadTexture("image/Player.png");
+    gBulletTexture = loadTexture("image/Bullet.png");
+    if (gSquareTexture == nullptr || gBulletTexture == nullptr)
+    {
+        std::cerr << "Failed to load textures!" << std::endl;
+        closeSDL();
+        exit(2);
+    }
+
+    gObstacleTexture = loadTexture("image/obstacle.png");
+    if (gObstacleTexture == nullptr)
+    {
+        std::cerr << "Failed to load obstacle texture!" << std::endl;
+        closeSDL();
+        exit(3);
+    }
+
+    gHealth = loadTexture("image/health.png");
+    if(gHealth == nullptr)
+    {
+        std::cerr << "Failed to load health texture!" << std::endl;
+        closeSDL();
+        exit(4);
+    }
+
+    gShootSound = Mix_LoadWAV("sound/shoot.wav");
+    if (gShootSound == nullptr)
+    {
+        std::cerr << "Failed to load shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    }
 }
 
 void Game::loadBackground()
@@ -307,7 +332,7 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
 
     if (currentKeyStates[SDL_SCANCODE_LEFT])
     {
-        gSquareRect.x -= 1;
+        gSquareRect.x -= 2;
         if (gSquareRect.x < 0) 
         {
             gSquareRect.x = 0;
@@ -316,7 +341,7 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
     
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {
-        gSquareRect.x += 1;
+        gSquareRect.x += 2;
         if(gSquareRect.x > SCREEN_WIDTH - gSquareRect.w) 
         {
             gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;
@@ -330,11 +355,16 @@ void Game::handleEvent(SDL_Event& e, bool& quit)
             isBulletActive = true;
             gBulletRect.x = gSquareRect.x + SQUARE_SIZE; 
             gBulletRect.y = gSquareRect.y + SQUARE_SIZE / 2 - gBulletRect.h / 2;
+            
+            if (Mix_PlayChannel(-1, gShootSound, 0) == -1)
+            {
+                std::cerr << "Failed to play shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+            }
+            
         }
     }
-
-        
 }
+
 bool Game::isCollision() {
      return Collision::checkCollision(gSquareRect , gObstacleRect);
 }
