@@ -28,6 +28,7 @@ private:
     void loadImagee();
     void loadBackground();
     void loadTextTexture(const std::string& text);
+    void loadSoundd();
     bool isCollision();
     void renderPoints();
     void renderGameOver();
@@ -55,8 +56,12 @@ private:
     SDL_Rect gBulletRect;
     SDL_Rect dstRect = {10, 10, 200, 50};
     SDL_Rect gObstacleRect;
-    SDL_Texture* gHealth = nullptr;
+    SDL_Texture* gHealth = nullptr; 
     Mix_Chunk* gShootSound = nullptr;
+    Mix_Chunk* gCollision = nullptr;
+    Mix_Chunk* gSound = nullptr;
+    Mix_Chunk* gShotTrung = nullptr;
+    Mix_Chunk* gGameOver = nullptr;
 
 
 };
