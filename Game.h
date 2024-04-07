@@ -38,6 +38,7 @@ private:
     const int SCREEN_HEIGHT = 900;
     const int SQUARE_SIZE = 80;
     int points;
+    int highestPoint = 0;
     int maxHealth = 3;
     int currentHealth;
     const int HEALTH_WIDTH = 50;
