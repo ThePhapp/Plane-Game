@@ -18,8 +18,6 @@ public:
 private:
     bool initSDL();
     void closeSDL();
-    bool isBulletActive = false;
-    bool isObstacleActive = false;
     void spawnObstacle();
     void updateObstacle();
     void handleBulletCollision();
@@ -27,16 +25,20 @@ private:
     void handleEvent(SDL_Event& e, bool& quit);
     void loadImagee();
     void loadBackground();
+    void renderBackground();
     void loadTextTexture(const std::string& text);
     void loadSoundd();
     bool isCollision();
     void renderPoints();
     void renderGameOver();
     void renderHealth();
+    bool isBulletActive = false;
+    bool isObstacleActive = false;
 private:
     const int SCREEN_WIDTH = 1300;
     const int SCREEN_HEIGHT = 900;
-    const int SQUARE_SIZE = 80;
+    const int SQUARE_SIZE = 60;
+    int backgroundPosX;
     int points;
     int highestPoint = 0;
     int maxHealth = 3;

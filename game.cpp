@@ -133,7 +133,7 @@ void Game::closeSDL()
 void Game::render()
 {
     SDL_RenderClear(gRenderer);
-    SDL_RenderCopy(gRenderer, gBackgroundTexture, nullptr, nullptr);
+    renderBackground();
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
     renderPoints();

@@ -36,6 +36,23 @@ void Game::loadBackground()
         closeSDL();
         exit(3);
     }
+    backgroundPosX = 0;
+}
+
+void Game::renderBackground()
+{
+    backgroundPosX -= 1;
+
+    if (backgroundPosX < -SCREEN_WIDTH)
+    {
+        backgroundPosX = 0;
+    }
+
+    SDL_Rect backgroundRect1 = { backgroundPosX, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+    SDL_Rect backgroundRect2 = { backgroundPosX + SCREEN_WIDTH, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
+
+    SDL_RenderCopy(gRenderer, gBackgroundTexture, nullptr, &backgroundRect1);
+    SDL_RenderCopy(gRenderer, gBackgroundTexture, nullptr, &backgroundRect2);
 }
 
 SDL_Texture* Game::loadTexture(const std::string& path)
