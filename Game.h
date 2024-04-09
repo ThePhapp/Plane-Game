@@ -22,11 +22,11 @@ private:
     void updateObstacle();
     void handleBulletCollision();
     void render();
-    void handleEvent(SDL_Event& e, bool& quit);
+    void handleEvent(SDL_Event &e, bool &quit);
     void loadImagee();
     void loadBackground();
     void renderBackground();
-    void loadTextTexture(const std::string& text);
+    void loadTextTexture(const std::string &text);
     void loadSoundd();
     bool isCollision();
     void renderPoints();
@@ -34,12 +34,15 @@ private:
     void renderHealth();
     bool isBulletActive = false;
     bool isObstacleActive = false;
+
 private:
     const int SCREEN_WIDTH = 1300;
     const int SCREEN_HEIGHT = 900;
     const int SQUARE_SIZE = 60;
     int backgroundPosX;
     int points;
+    int level = 1;
+    int miss;
     int highestPoint = 0;
     int maxHealth = 3;
     int currentHealth;
@@ -47,26 +50,24 @@ private:
     const int HEALTH_HEIGHT = 50;
     const int HEALTH_SPACING = 10;
 
-    SDL_Window* gWindow = nullptr;
-    SDL_Renderer* gRenderer = nullptr;
-    SDL_Texture* gSquareTexture = nullptr;
-    SDL_Texture* gBulletTexture = nullptr;
-    SDL_Texture* gBackgroundTexture;
-    SDL_Texture* textTexture;
-    SDL_Texture* gObstacleTexture = nullptr;
-    SDL_Texture* loadTexture(const std::string& path);
+    SDL_Window *gWindow = nullptr;
+    SDL_Renderer *gRenderer = nullptr;
+    SDL_Texture *gSquareTexture = nullptr;
+    SDL_Texture *gBulletTexture = nullptr;
+    SDL_Texture *gBackgroundTexture;
+    SDL_Texture *textTexture;
+    SDL_Texture *gObstacleTexture = nullptr;
+    SDL_Texture *loadTexture(const std::string &path);
     SDL_Rect gSquareRect;
     SDL_Rect gBulletRect;
     SDL_Rect dstRect = {10, 10, 200, 50};
     SDL_Rect gObstacleRect;
-    SDL_Texture* gHealth = nullptr; 
-    Mix_Chunk* gShootSound = nullptr;
-    Mix_Chunk* gCollision = nullptr;
-    Mix_Chunk* gSound = nullptr;
-    Mix_Chunk* gShotTrung = nullptr;
-    Mix_Chunk* gGameOver = nullptr;
-
-
+    SDL_Texture *gHealth = nullptr;
+    Mix_Chunk *gShootSound = nullptr;
+    Mix_Chunk *gCollision = nullptr;
+    Mix_Chunk *gSound = nullptr;
+    Mix_Chunk *gShotTrung = nullptr;
+    Mix_Chunk *gGameOver = nullptr;
 };
 
 #endif // GAME_H
