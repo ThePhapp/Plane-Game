@@ -1,4 +1,5 @@
 #include "Game.h"
+std::vector<Bullet> Game::bullets;
 
 Game::Game()
 {
@@ -9,7 +10,10 @@ Game::Game()
     }
 
     gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-    gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+    for (auto &bullet : bullets)
+    {
+        bullet.rect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+    }
     loadImagee();
     loadBackground();
     loadSoundd();
@@ -37,8 +41,9 @@ void Game::run()
             handleEvent(e, quit);
             updateObstacle();
             handleBulletCollision();
+            handleBossBulletCollision();
             render();
-            if (isCollision() || miss == 3)
+            if (isCollision() || miss == 5)
             {
                 currentHealth -= 1;
                 miss = 0;
@@ -47,13 +52,12 @@ void Game::run()
                 {
                     std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
                 }
-
-                if (currentHealth == 0)
-                {
-                    gameOver = true;
-                    renderGameOver();
-                    isObstacleActive = false;
-                }
+            }
+            if (currentHealth == 0)
+            {
+                gameOver = true;
+                renderGameOver();
+                isObstacleActive = false;
             }
         }
 
@@ -69,13 +73,20 @@ void Game::run()
                 {
                     if (e.key.keysym.sym == SDLK_SPACE)
                     {
-                        gameOver = false;
+                        gameOver = false; // xet tat ca ve start
                         if (points > highestPoint)
+                        {
                             highestPoint = points;
+                        }
                         points = 0;
                         level = 1;
+                        boss.setActive(false);
+                        boss.setHealth(100);
                         gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-                        gBulletRect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+                        for (auto &bullet : bullets)
+                        {
+                            bullet.rect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+                        }
                         currentHealth = maxHealth;
                     }
                 }
@@ -144,6 +155,18 @@ void Game::render()
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
     renderPoints();
     renderHealth();
+    if (!boss.isActive() && points == 1000)
+    {
+        boss.setActive(true);
+    }
+
+    // Neu boss active, render boss va bullet cua boss
+    if (boss.isActive())
+    {
+        boss.update();
+        boss.render(gRenderer);
+        boss.handleBulletCollision(); // Xy ly va cham boss va bullet
+    }
     if (!Mix_Playing(-1)) // SoundBackground
     {
         if (Mix_PlayChannel(-1, gSound, 0) == -1)
@@ -152,14 +175,13 @@ void Game::render()
         }
     }
 
-    if (isBulletActive)
+    for (auto &bullet : bullets)
     {
-        gBulletRect.x += 4; // toc do vien dan
-        SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &gBulletRect);
-
-        if (gBulletRect.x > SCREEN_WIDTH)
+        if (bullet.active)
         {
-            isBulletActive = false;
+            // Render bullet
+            bullet.rect.x += 4;
+            SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &bullet.rect);
         }
     }
     SDL_RenderPresent(gRenderer);

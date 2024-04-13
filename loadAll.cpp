@@ -23,6 +23,10 @@ void Game::loadImagee()
         std::cout << "Failed to load health texture!" << std::endl;
         closeSDL();
     }
+
+    // Tải hình ảnh cho boss và đạn của boss
+    boss.loadBossImage(gRenderer, "image/boss.png");
+    boss.loadBulletImage(gRenderer, "image/bullet.png");
 }
 
 void Game::loadBackground()
@@ -38,7 +42,7 @@ void Game::loadBackground()
     backgroundPosX = 0;
 }
 
-void Game::renderBackground()
+void Game::renderBackground()       //tao background di chuyen
 {
     backgroundPosX -= 1;
 
@@ -101,7 +105,7 @@ void Game::renderPoints()
     SDL_DestroyTexture(pointsTexture);
 }
 
-void Game::loadSoundd()
+void Game::loadSoundd()       //load sound
 {
     gShootSound = Mix_LoadWAV("sound/shoot.wav");
     if (gShootSound == nullptr)

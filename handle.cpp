@@ -8,6 +8,17 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
         {
             quit = true;
         }
+        else if (e.type == SDL_KEYDOWN)
+        {
+            if (e.key.keysym.sym == SDLK_SPACE)
+            {
+                fireBullet();
+                if (Mix_PlayChannel(-1, gShootSound, 0) == -1)
+                {
+                    std::cout << "Failed to play shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+                }
+            }
+        }
     }
 
     const Uint8 *currentKeyStates = SDL_GetKeyboardState(NULL);
@@ -49,21 +60,6 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
         if (gSquareRect.x > SCREEN_WIDTH - gSquareRect.w)
         {
             gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;
-        }
-    }
-
-    if (currentKeyStates[SDL_SCANCODE_SPACE])
-    {
-        if (!isBulletActive)
-        {
-            isBulletActive = true;
-            gBulletRect.x = gSquareRect.x + SQUARE_SIZE;
-            gBulletRect.y = gSquareRect.y + SQUARE_SIZE / 2 - gBulletRect.h / 2;
-
-            if (Mix_PlayChannel(-1, gShootSound, 0) == -1)
-            {
-                std::cout << "Failed to play shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
-            }
         }
     }
 }
