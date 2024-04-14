@@ -33,9 +33,14 @@ void Game::run()
     SDL_Event e;
     bool quit = false;
     bool gameOver = false;
-
+    loadMenu();
     while (!quit)
     {
+        while (showMainMenu && !quit)
+        {
+            handleMainMenuEvent(e, quit, showMainMenu);
+            renderMainMenu();
+        }
         while (!gameOver && !quit)
         {
             handleEvent(e, quit);
@@ -137,10 +142,11 @@ bool Game::initSDL()
 
 void Game::closeSDL()
 {
-    SDL_DestroyTexture(gSquareTexture);
-    SDL_DestroyTexture(gBulletTexture);
     SDL_DestroyRenderer(gRenderer);
     SDL_DestroyWindow(gWindow);
+    SDL_DestroyTexture(gSquareTexture);
+    SDL_DestroyTexture(gBulletTexture);
+    SDL_DestroyTexture(gMenuTexture);
 
     IMG_Quit();
     SDL_Quit();

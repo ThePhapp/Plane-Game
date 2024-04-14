@@ -12,12 +12,12 @@ void Game::updateObstacle()
         gObstacleRect.x -= 1;
         level = 1;
     }
-    else if (300 <= points && points < 1500)
+    else if (300 <= points && points < 1800)
     {
         gObstacleRect.x -= 2;
         level = 2;
     }
-    else if (1500 <= points && points < 2500)
+    else if (1800 <= points && points < 2500)
     {
         gObstacleRect.x -= 3;
         level = 3;

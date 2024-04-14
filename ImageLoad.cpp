@@ -42,7 +42,7 @@ void Game::loadBackground()
     backgroundPosX = 0;
 }
 
-void Game::renderBackground()       //tao background di chuyen
+void Game::renderBackground() // tao background di chuyen
 {
     backgroundPosX -= 1;
 
@@ -105,7 +105,7 @@ void Game::renderPoints()
     SDL_DestroyTexture(pointsTexture);
 }
 
-void Game::loadSoundd()       //load sound
+void Game::loadSoundd() // load sound
 {
     gShootSound = Mix_LoadWAV("sound/shoot.wav");
     if (gShootSound == nullptr)
@@ -204,4 +204,63 @@ void Game::renderGameOver()
     {
         std::cout << "Failed to play sound GameOver! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
+}
+
+void Game::loadMenu()
+{
+    SDL_Surface *surface = IMG_Load("image/Menu.png");
+    if (surface)
+    {
+        gMenuTexture = SDL_CreateTextureFromSurface(gRenderer, surface);
+        SDL_FreeSurface(surface);
+
+        // Đặt vị trí cho menu
+        menuRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    }
+    else
+    {
+        std::cout << "Failed to load menu image. SDL_Image Error: " << IMG_GetError() << std::endl;
+    }
+}
+
+void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu)
+{
+    playButtonRect = {SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT * 5 / 7 + 40, 150, 70};
+    quitButtonRect = {SCREEN_WIDTH / 2 - 170, SCREEN_HEIGHT * 5 / 7 + 130, 320, 80};
+
+    int mouseX, mouseY;
+    while (SDL_PollEvent(&e) != 0)
+    {
+        if (e.type == SDL_QUIT)
+        {
+            quit = true;
+            showMainMenu = false;
+        }
+        else if (e.type == SDL_MOUSEBUTTONDOWN)
+        {
+            SDL_GetMouseState(&mouseX, &mouseY);
+            if (mouseX >= playButtonRect.x && mouseX <= playButtonRect.x + playButtonRect.w &&
+                mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h)
+            {
+                showMainMenu = false; // bắt đầu game
+            }
+            else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
+                     mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h)
+            {
+                quit = true; // thoát game
+                showMainMenu = false;
+            }
+        }
+    }
+}
+
+void Game::renderMainMenu()
+{
+    SDL_RenderCopy(gRenderer, gMenuTexture, nullptr, &menuRect);
+    // Vẽ Play và Quit button
+    SDL_SetRenderDrawColor(gRenderer, 0, 255, 255, 255);
+    SDL_RenderDrawRect(gRenderer, &playButtonRect);
+    SDL_RenderDrawRect(gRenderer, &quitButtonRect);
+
+    SDL_RenderPresent(gRenderer);
 }

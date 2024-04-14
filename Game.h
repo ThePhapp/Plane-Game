@@ -43,6 +43,9 @@ private:
     void updateBullets();
     void handleEvent(SDL_Event &e, bool &quit);
     void loadTextTexture(const std::string &text);
+    void loadMenu();
+    void handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu);
+    void renderMainMenu();
 
 private:
     int backgroundPosX;
@@ -53,6 +56,7 @@ private:
     int maxHealth = 3;
     int currentHealth;
     bool isObstacleActive = false;
+    bool showMainMenu = true;
     const int HEALTH_WIDTH = 50;
     const int HEALTH_HEIGHT = 50;
     const int HEALTH_SPACING = 10;
@@ -66,9 +70,13 @@ private:
     SDL_Texture *textTexture;
     SDL_Texture *gObstacleTexture = nullptr;
     SDL_Texture *loadTexture(const std::string &path);
+    SDL_Texture *gMenuTexture = nullptr;
+    SDL_Rect menuRect;
     SDL_Rect gSquareRect;
     SDL_Rect dstRect = {10, 10, 200, 50};
     SDL_Rect gObstacleRect;
+    SDL_Rect playButtonRect;
+    SDL_Rect quitButtonRect;
     SDL_Texture *gHealth = nullptr;
     Mix_Chunk *gShootSound = nullptr;
     Mix_Chunk *gCollision = nullptr;

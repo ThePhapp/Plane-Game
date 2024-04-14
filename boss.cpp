@@ -63,7 +63,7 @@ void Boss::update()
         }
 
         // Randomly shoot bullets
-        if (rand() % 200 == 0)
+        if (rand() % 300 == 0)
         {
             shootBullet();
         }
@@ -78,7 +78,7 @@ void Boss::handleBulletCollision()
         if (bullet.active && SDL_HasIntersection(&bullet.rect, &rect))
         {
             bullet.active = false;
-            health -= 5;
+            health -= 4;
             if (health <= 0)
             {
                 active = false;
