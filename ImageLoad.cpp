@@ -152,57 +152,62 @@ void Game::renderHealth()
 
 void Game::renderGameOver()
 {
-    TTF_Font *font2 = TTF_OpenFont("font/1.ttf", 70);
-    if (font2 == nullptr)
+    SDL_Surface *gameOverSurface = IMG_Load("image/1.png");
+    if (gameOverSurface)
     {
-        std::cout << "Failed to load font: " << TTF_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Color textColorGV = {225, 0, 0};
-    SDL_Surface *gameOverSurface = TTF_RenderText_Solid(font2, "GameOver", textColorGV);
-    if (gameOverSurface == nullptr)
-    {
-        std::cout << "Unable to render Game Over surface: " << TTF_GetError() << std::endl;
-        TTF_CloseFont(font2);
-        return;
-    }
-
-    SDL_Texture *gameOverTexture = SDL_CreateTextureFromSurface(gRenderer, gameOverSurface);
-    if (gameOverTexture == nullptr)
-    {
-        std::cout << "Unable to create texture from Game Over surface: " << SDL_GetError() << std::endl;
+        SDL_Texture *gameOverTexture = SDL_CreateTextureFromSurface(gRenderer, gameOverSurface);
         SDL_FreeSurface(gameOverSurface);
-        TTF_CloseFont(font2);
-        return;
-    }
-    SDL_Rect gameOverRect = {(SCREEN_WIDTH - gameOverSurface->w) / 2, (SCREEN_HEIGHT - gameOverSurface->h) / 2, gameOverSurface->w, gameOverSurface->h};
-
-    SDL_Surface *playAgainSurface = TTF_RenderText_Solid(font2, "Press Space to PlayAgain !!!", textColorGV);
-    if (playAgainSurface == nullptr)
-    {
-        std::cout << "Unable to render Play Again surface: " << TTF_GetError() << std::endl;
+        SDL_Rect gameOverRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_RenderCopy(gRenderer, gameOverTexture, nullptr, &gameOverRect);
         SDL_DestroyTexture(gameOverTexture);
-        TTF_CloseFont(font2);
-        return;
     }
-
-    SDL_Texture *playAgainTexture = SDL_CreateTextureFromSurface(gRenderer, playAgainSurface);
-    if (playAgainTexture == nullptr)
+    else
     {
-        std::cout << "Unable to create texture from Play Again surface: " << SDL_GetError() << std::endl;
-        SDL_FreeSurface(playAgainSurface);
-        SDL_DestroyTexture(gameOverTexture);
-        TTF_CloseFont(font2);
-        return;
+        std::cout << "Failed to load game over image. SDL_Image Error: " << IMG_GetError() << std::endl;
     }
-    SDL_Rect playAgainRect = {(SCREEN_WIDTH - playAgainSurface->w) / 2, gameOverRect.y + gameOverRect.h + 20, playAgainSurface->w, playAgainSurface->h};
+    SDL_RenderPresent(gRenderer);
+}
 
-    SDL_RenderCopy(gRenderer, gameOverTexture, nullptr, &gameOverRect); // render
-    SDL_RenderCopy(gRenderer, playAgainTexture, nullptr, &playAgainRect);
-    if (Mix_PlayChannel(-1, gGameOver, 0) == -1) // SoundVaCham
+void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver)
+{
+    int mouseX, mouseY;
+    playAgainButtonRect = {SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT * 3 / 4 - 50, 400, 90};
+    backToMenuButtonRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT * 3 / 4 + 60, 200, 80};
+
+    while (SDL_PollEvent(&e) != 0)
     {
-        std::cout << "Failed to play sound GameOver! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        if (e.type == SDL_QUIT)
+        {
+            quit = true;
+        }
+        else if (e.type == SDL_MOUSEBUTTONDOWN)
+        {
+            SDL_GetMouseState(&mouseX, &mouseY);
+            if (mouseX >= playAgainButtonRect.x && mouseX <= playAgainButtonRect.x + playAgainButtonRect.w &&
+                mouseY >= playAgainButtonRect.y && mouseY <= playAgainButtonRect.y + playAgainButtonRect.h)
+            {
+                gameOver = false;
+                if (points > highestPoint)
+                    highestPoint = points;
+                points = 0;
+                level = 1;
+                boss.setActive(false);
+                boss.setHealth(100);
+                currentHealth == maxHealth;
+                gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
+                for (auto &bullet : bullets)
+                {
+                    bullet.rect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
+                }
+                currentHealth = maxHealth;
+            }
+            else if (mouseX >= backToMenuButtonRect.x && mouseX <= backToMenuButtonRect.x + backToMenuButtonRect.w &&
+                     mouseY >= backToMenuButtonRect.y && mouseY <= backToMenuButtonRect.y + backToMenuButtonRect.h)
+            {
+                gameOver = false;
+                showMainMenu = true;
+            }
+        }
     }
 }
 
@@ -225,16 +230,34 @@ void Game::loadMenu()
 
 void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu)
 {
+    int mouseX, mouseY;
     playButtonRect = {SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT * 5 / 7 + 40, 150, 70};
     quitButtonRect = {SCREEN_WIDTH / 2 - 170, SCREEN_HEIGHT * 5 / 7 + 130, 320, 80};
-
-    int mouseX, mouseY;
     while (SDL_PollEvent(&e) != 0)
     {
         if (e.type == SDL_QUIT)
         {
             quit = true;
             showMainMenu = false;
+        }
+        else if (e.type == SDL_MOUSEMOTION)
+        { // Bắt sự kiện di chuyển chuột
+            SDL_GetMouseState(&mouseX, &mouseY);
+            if (mouseX >= playButtonRect.x && mouseX <= playButtonRect.x + playButtonRect.w &&
+                mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h)
+            {
+                mouseOverPlay = true;
+            }
+            else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
+                     mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h)
+            {
+                mouseOverQuit = true;
+            }
+            else
+            {
+                mouseOverPlay = false;
+                mouseOverQuit = false;
+            }
         }
         else if (e.type == SDL_MOUSEBUTTONDOWN)
         {
@@ -243,6 +266,15 @@ void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu)
                 mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h)
             {
                 showMainMenu = false; // bắt đầu game
+                currentHealth = maxHealth;
+                if (points > highestPoint)
+                    highestPoint = points;
+                points = 0;
+                level = 1;
+                boss.setActive(false);
+                boss.setHealth(100);
+                currentHealth == maxHealth;
+                gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
             }
             else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
                      mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h)
@@ -257,9 +289,23 @@ void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu)
 void Game::renderMainMenu()
 {
     SDL_RenderCopy(gRenderer, gMenuTexture, nullptr, &menuRect);
+
     // Vẽ Play và Quit button
-    SDL_SetRenderDrawColor(gRenderer, 0, 255, 255, 255);
+    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+
+    // Vẽ Play button
+    if (mouseOverPlay)
+    {
+        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
+    }
     SDL_RenderDrawRect(gRenderer, &playButtonRect);
+
+    // Vẽ Quit button
+    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+    if (mouseOverQuit)
+    {
+        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
+    }
     SDL_RenderDrawRect(gRenderer, &quitButtonRect);
 
     SDL_RenderPresent(gRenderer);

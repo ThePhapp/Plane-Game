@@ -45,6 +45,7 @@ private:
     void loadTextTexture(const std::string &text);
     void loadMenu();
     void handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu);
+    void handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver);
     void renderMainMenu();
 
 private:
@@ -57,6 +58,8 @@ private:
     int currentHealth;
     bool isObstacleActive = false;
     bool showMainMenu = true;
+    bool mouseOverPlay = false;
+    bool mouseOverQuit = false;
     const int HEALTH_WIDTH = 50;
     const int HEALTH_HEIGHT = 50;
     const int HEALTH_SPACING = 10;
@@ -77,6 +80,8 @@ private:
     SDL_Rect gObstacleRect;
     SDL_Rect playButtonRect;
     SDL_Rect quitButtonRect;
+    SDL_Rect playAgainButtonRect;
+    SDL_Rect backToMenuButtonRect;
     SDL_Texture *gHealth = nullptr;
     Mix_Chunk *gShootSound = nullptr;
     Mix_Chunk *gCollision = nullptr;

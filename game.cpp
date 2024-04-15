@@ -34,6 +34,7 @@ void Game::run()
     bool quit = false;
     bool gameOver = false;
     loadMenu();
+
     while (!quit)
     {
         while (showMainMenu && !quit)
@@ -68,35 +69,7 @@ void Game::run()
 
         while (gameOver && !quit)
         {
-            while (SDL_PollEvent(&e) != 0)
-            {
-                if (e.type == SDL_QUIT)
-                {
-                    quit = true;
-                }
-                else if (e.type == SDL_KEYDOWN)
-                {
-                    if (e.key.keysym.sym == SDLK_SPACE)
-                    {
-                        gameOver = false; // xet tat ca ve start
-                        if (points > highestPoint)
-                        {
-                            highestPoint = points;
-                        }
-                        points = 0;
-                        level = 1;
-                        boss.setActive(false);
-                        boss.setHealth(100);
-                        gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-                        for (auto &bullet : bullets)
-                        {
-                            bullet.rect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
-                        }
-                        currentHealth = maxHealth;
-                    }
-                }
-            }
-            SDL_RenderPresent(gRenderer);
+            handleGameOverEvent(e, quit, gameOver);
         }
     }
 }
