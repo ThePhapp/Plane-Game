@@ -133,6 +133,9 @@ void Game::closeSDL()
     Mix_FreeChunk(gSound);
     Mix_FreeChunk(gShotTrung);
     Mix_FreeChunk(gGameOver);
+    SDL_DestroyTexture(gSquareTexture);
+    SDL_DestroyTexture(gBulletTexture);
+    SDL_DestroyTexture(gMenuTexture);
 
     IMG_Quit();
     SDL_Quit();
