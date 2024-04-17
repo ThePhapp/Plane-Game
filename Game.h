@@ -9,6 +9,7 @@
 #include <vector>
 #include "bullet.h"
 #include "boss.h"
+#include "ExplosionObject.h"
 
 const int SCREEN_WIDTH = 1300;
 const int SCREEN_HEIGHT = 900;
@@ -47,6 +48,7 @@ private:
     void handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu);
     void handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver);
     void renderMainMenu();
+    void loadExplosion();
 
 private:
     int backgroundPosX;
@@ -64,6 +66,7 @@ private:
     const int HEALTH_HEIGHT = 50;
     const int HEALTH_SPACING = 10;
     Boss boss;
+    Explosion exp;
 
     SDL_Window *gWindow = nullptr;
     SDL_Renderer *gRenderer = nullptr;
@@ -82,6 +85,7 @@ private:
     SDL_Rect quitButtonRect;
     SDL_Rect playAgainButtonRect;
     SDL_Rect backToMenuButtonRect;
+    TTF_Font *font1;
     SDL_Texture *gHealth = nullptr;
     Mix_Chunk *gShootSound = nullptr;
     Mix_Chunk *gCollision = nullptr;
