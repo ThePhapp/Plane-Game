@@ -7,25 +7,20 @@ void Game::updateObstacle()
         spawnObstacle();
     }
 
-    if (0 <= points && points < 300)
+    if (0 <= points && points < 200)
     {
         gObstacleRect.x -= 1;
         level = 1;
     }
-    else if (300 <= points && points < 1800)
+    else if (200 <= points && points < 1800)
     {
         gObstacleRect.x -= 2;
         level = 2;
     }
-    else if (1800 <= points && points < 2500)
+    else
     {
         gObstacleRect.x -= 3;
         level = 3;
-    }
-    else
-    {
-        gObstacleRect.x -= 4;
-        level = 4;
     }
 
     if (gObstacleRect.x + gObstacleRect.w < 0)

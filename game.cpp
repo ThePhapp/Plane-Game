@@ -49,7 +49,7 @@ void Game::run()
             handleBulletCollision();
             handleBossBulletCollision();
             render();
-            if (isCollision() || miss == 5)
+            if (isCollision() || miss == 4)
             {
                 currentHealth -= 1;
                 miss = 0;
@@ -63,6 +63,12 @@ void Game::run()
             {
                 gameOver = true;
                 renderGameOver();
+                isObstacleActive = false;
+            }
+            if (!boss.isActive() && points > 1000)
+            {
+                gameOver = true;
+                renderWinMenu();
                 isObstacleActive = false;
             }
         }

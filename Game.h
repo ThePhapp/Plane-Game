@@ -38,6 +38,7 @@ private:
     bool isCollision();
     void renderPoints();
     void renderGameOver();
+    void renderWinMenu();
     void renderHealth();
     void handleBossBulletCollision();
     void fireBullet();

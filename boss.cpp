@@ -63,7 +63,7 @@ void Boss::update()
         }
 
         // Randomly shoot bullets
-        if (rand() % 300 == 0)
+        if (rand() % 250 == 0)
         {
             shootBullet();
         }

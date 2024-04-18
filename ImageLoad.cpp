@@ -77,8 +77,8 @@ SDL_Texture *Game::loadTexture(const std::string &path)
 }
 void Game::renderPoints()
 {
-    std::string pointString = "     Score: " + std::to_string(points) + "           Highest: " + std::to_string(highestPoint) + "                                                Level: " + std::to_string(level)+
-    "          Miss: " + std::to_string(miss) + "/5";
+    std::string pointString = "     Score: " + std::to_string(points) + "           Highest: " + std::to_string(highestPoint) + "                                                Level: " + std::to_string(level) +
+                              "          Miss: " + std::to_string(miss) + "/4";
     font1 = TTF_OpenFont("font/2.ttf", 35);
     if (font1 == nullptr)
     {
@@ -100,7 +100,7 @@ void Game::renderPoints()
     }
     SDL_Rect dstRect = {10, 10, textSurface->w, textSurface->h};
     SDL_RenderCopy(gRenderer, pointsTexture, nullptr, &dstRect);
-        
+
     TTF_CloseFont(font1);
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(pointsTexture);
@@ -110,7 +110,7 @@ void Game::loadSoundd() // load sound
 {
     for (int i = 0; i < Mix_AllocateChannels(-1); ++i)
     {
-        Mix_Volume(i, MIX_MAX_VOLUME / 7);      // Cài đặt độ lớn âm thanh
+        Mix_Volume(i, MIX_MAX_VOLUME / 7); // Cài đặt độ lớn âm thanh
     }
 
     gShootSound = Mix_LoadWAV("sound/shoot.wav");
@@ -178,6 +178,28 @@ void Game::renderGameOver()
     SDL_RenderPresent(gRenderer);
 }
 
+void Game::renderWinMenu()
+{
+    SDL_Surface *gameOverSurface = IMG_Load("image/winmenu.png");
+    if (gameOverSurface)
+    {
+        SDL_Texture *gameOverTexture = SDL_CreateTextureFromSurface(gRenderer, gameOverSurface);
+        SDL_FreeSurface(gameOverSurface);
+        SDL_Rect gameOverRect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+        SDL_RenderCopy(gRenderer, gameOverTexture, nullptr, &gameOverRect);
+        SDL_DestroyTexture(gameOverTexture);
+    }
+    else
+    {
+        std::cout << "Failed to load game over image. SDL_Image Error: " << IMG_GetError() << std::endl;
+    }
+    if (Mix_PlayChannel(-1, gGameOver, 0) == -1)
+    {
+        std::cout << "Failed to play GameOver sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    }
+    SDL_RenderPresent(gRenderer);
+}
+
 void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver)
 {
     int mouseX, mouseY;
@@ -201,6 +223,7 @@ void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver)
                     highestPoint = points;
                 points = 0;
                 level = 1;
+                miss = 0;
                 boss.setActive(false);
                 boss.setHealth(100);
                 currentHealth == maxHealth;
