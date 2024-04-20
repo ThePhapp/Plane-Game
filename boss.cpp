@@ -13,6 +13,7 @@ Boss::Boss()
     bossTexture = nullptr;
     bulletTexture = nullptr;
     health = 100;
+    explosionStartTime = 0;
 }
 
 Boss::~Boss()
@@ -120,5 +121,23 @@ void Boss::loadBulletImage(SDL_Renderer *renderer, const char *filePath)
     else
     {
         std::cout << "Failed to load Bullet's Boss texture!" << std::endl;
+    }
+}
+
+void Boss::loadExplosionBoss(SDL_Renderer *renderer)
+{
+    if (health <= 0)
+    {
+        if (!exp1.isExploding())
+        {
+            exp1.loadExplosionImage(renderer, "image/exp_main.png");
+            exp1.start(rect.x, rect.y);
+            explosionStartTime = SDL_GetTicks();
+        }
+    }
+    if (exp1.isExploding())
+    {
+        exp1.update();
+        exp1.render(renderer);
     }
 }

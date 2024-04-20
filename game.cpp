@@ -67,9 +67,13 @@ void Game::run()
             }
             if (!boss.isActive() && points > 1000)
             {
-                gameOver = true;
-                renderWinMenu();
-                isObstacleActive = false;
+                Uint32 currentTime = SDL_GetTicks();
+                if (currentTime - boss.explosionStartTime >= 410)
+                {
+                    gameOver = true;
+                    renderWinMenu();
+                    isObstacleActive = false;
+                }
             }
         }
 
@@ -169,6 +173,8 @@ void Game::render()
     }
 
     loadExplosion();
+    boss.loadExplosionBoss(gRenderer);
+
     if (!Mix_Playing(-1)) // SoundBackground
     {
         if (Mix_PlayChannel(-1, gSound, 0) == -1)

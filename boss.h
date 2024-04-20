@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include "bullet.h"
+#include "ExplosionObject.h"
 
 class Boss
 {
@@ -25,6 +26,8 @@ public:
     void setActive(bool state) { active = state; }
     void setHealth(int healthB) { health = healthB; }
     static std::vector<Bullet> &getBulletBoss() { return bulletBoss; }
+    void loadExplosionBoss(SDL_Renderer *renderer);
+    Uint32 explosionStartTime;
 
 private:
     SDL_Texture *bossTexture;
@@ -36,6 +39,7 @@ private:
     int health;
     int bulletSpeed;
     static std::vector<Bullet> bulletBoss;
+    Explosion exp1;
 };
 
 #endif // BOSS_H
