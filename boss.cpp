@@ -78,7 +78,7 @@ void Boss::handleBulletCollision()
         if (bullet.active && SDL_HasIntersection(&bullet.rect, &rect))
         {
             bullet.active = false;
-            health -= 3;
+            health -= 4;
             if (health <= 0)
             {
                 active = false;

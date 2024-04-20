@@ -98,6 +98,7 @@ private:
     Mix_Chunk *gShotTrung = nullptr;
     Mix_Chunk *gGameOver = nullptr;
     Mix_Chunk *gWin = nullptr;
+
 };
 
 #endif // GAME_H
