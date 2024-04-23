@@ -8,7 +8,7 @@
 #include "Collision.h"
 #include <vector>
 #include "bullet.h"
-#include "boss.h"
+#include "bossobject.h"
 #include "ExplosionObject.h"
 
 const int SCREEN_WIDTH = 1300;

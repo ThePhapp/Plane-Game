@@ -1,5 +1,5 @@
 #include "game.h"
-#include "boss.h"
+#include "bossobject.h"
 
 void Game::handleBulletCollision()
 { // Đạn trúng -> dừng

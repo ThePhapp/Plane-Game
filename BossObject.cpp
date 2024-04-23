@@ -1,4 +1,4 @@
-#include "boss.h"
+#include "bossobject.h"
 #include <cstdlib>
 #include "game.h"
 

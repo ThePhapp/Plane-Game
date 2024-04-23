@@ -1,5 +1,5 @@
-#ifndef BOSS_H
-#define BOSS_H
+#ifndef BOSSOBJECT_H
+#define BOSSOBJECT_H
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -42,4 +42,4 @@ private:
     Explosion exp1;
 };
 
-#endif // BOSS_H
+#endif // BOSSOBJECT_H

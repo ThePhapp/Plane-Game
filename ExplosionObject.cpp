@@ -66,7 +66,7 @@ void Explosion::loadExplosionImage(SDL_Renderer *renderer, const char *filePath)
             std::cout << "Failed to create texture from surface. SDL Error: " << SDL_GetError() << std::endl;
         }
 
-        // Khởi tạo các clip cho animation
+        // Khởi tạo các clip animation
         for (int i = 0; i < EXPLOSION_FRAMES; i++)
         {
             SDL_Rect clip;

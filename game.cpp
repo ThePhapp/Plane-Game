@@ -49,6 +49,7 @@ void Game::run()
             handleBulletCollision();
             handleBossBulletCollision();
             render();
+
             if (isCollision() || miss == 4)
             {
                 currentHealth -= 1;
@@ -59,12 +60,14 @@ void Game::run()
                     std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
                 }
             }
+
             if (currentHealth == 0)
             {
                 gameOver = true;
                 renderGameOver();
                 isObstacleActive = false;
             }
+
             if (!boss.isActive() && points > 1000)
             {
                 Uint32 currentTime = SDL_GetTicks();

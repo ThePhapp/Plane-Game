@@ -1,5 +1,23 @@
 #include "game.h"
 
+SDL_Texture *Game::loadTexture(const std::string &path)
+{
+    SDL_Surface *surface = IMG_Load(path.c_str());
+    if (surface == nullptr)
+    {
+        std::cout << "Unable to load image " << path << " SDL_image Error: " << IMG_GetError() << std::endl;
+        return nullptr;
+    }
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(gRenderer, surface);
+    SDL_FreeSurface(surface);
+    if (texture == nullptr)
+    {
+        std::cout << "Unable to create texture from " << path << " SDL Error: " << SDL_GetError() << std::endl;
+        return nullptr;
+    }
+    return texture;
+}
+
 void Game::loadImagee()
 {
     gSquareTexture = loadTexture("image/Player.png");
@@ -58,23 +76,6 @@ void Game::renderBackground() // tao background di chuyen
     SDL_RenderCopy(gRenderer, gBackgroundTexture, nullptr, &backgroundRect2);
 }
 
-SDL_Texture *Game::loadTexture(const std::string &path)
-{
-    SDL_Surface *surface = IMG_Load(path.c_str());
-    if (surface == nullptr)
-    {
-        std::cout << "Unable to load image " << path << " SDL_image Error: " << IMG_GetError() << std::endl;
-        return nullptr;
-    }
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(gRenderer, surface);
-    SDL_FreeSurface(surface);
-    if (texture == nullptr)
-    {
-        std::cout << "Unable to create texture from " << path << " SDL Error: " << SDL_GetError() << std::endl;
-        return nullptr;
-    }
-    return texture;
-}
 void Game::renderPoints()
 {
     std::string pointString = "     Score: " + std::to_string(points) + "           Highest: " + std::to_string(highestPoint) + "                                                Level: " + std::to_string(level) +
@@ -234,50 +235,6 @@ void Game::loadExplosion() // render explosion
     }
 }
 
-void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver)
-{
-    int mouseX, mouseY;
-    playAgainButtonRect = {SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT * 3 / 4 - 50, 400, 90};
-    backToMenuButtonRect = {SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT * 3 / 4 + 60, 200, 80};
-
-    while (SDL_PollEvent(&e) != 0)
-    {
-        if (e.type == SDL_QUIT)
-        {
-            quit = true;
-        }
-        else if (e.type == SDL_MOUSEBUTTONDOWN)
-        {
-            SDL_GetMouseState(&mouseX, &mouseY);
-            if (mouseX >= playAgainButtonRect.x && mouseX <= playAgainButtonRect.x + playAgainButtonRect.w &&
-                mouseY >= playAgainButtonRect.y && mouseY <= playAgainButtonRect.y + playAgainButtonRect.h)
-            {
-                gameOver = false;
-                if (points > highestPoint)
-                    highestPoint = points;
-                points = 0;
-                level = 1;
-                miss = 0;
-                boss.setActive(false);
-                boss.setHealth(100);
-                currentHealth == maxHealth;
-                gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-                for (auto &bullet : bullets)
-                {
-                    bullet.rect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
-                }
-                currentHealth = maxHealth;
-            }
-            else if (mouseX >= backToMenuButtonRect.x && mouseX <= backToMenuButtonRect.x + backToMenuButtonRect.w &&
-                     mouseY >= backToMenuButtonRect.y && mouseY <= backToMenuButtonRect.y + backToMenuButtonRect.h)
-            {
-                gameOver = false;
-                showMainMenu = true;
-            }
-        }
-    }
-}
-
 void Game::loadMenu()
 {
     SDL_Surface *surface = IMG_Load("image/Menu.png");
@@ -292,64 +249,6 @@ void Game::loadMenu()
     else
     {
         std::cout << "Failed to load menu image. SDL_Image Error: " << IMG_GetError() << std::endl;
-    }
-}
-
-void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // Main Menu
-{
-    int mouseX, mouseY;
-    playButtonRect = {SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT * 5 / 7 + 40, 150, 70};
-    quitButtonRect = {SCREEN_WIDTH / 2 - 170, SCREEN_HEIGHT * 5 / 7 + 130, 320, 80};
-    while (SDL_PollEvent(&e) != 0)
-    {
-        if (e.type == SDL_QUIT)
-        {
-            quit = true;
-            showMainMenu = false;
-        }
-        else if (e.type == SDL_MOUSEMOTION)
-        { // Bắt sự kiện di chuyển chuột
-            SDL_GetMouseState(&mouseX, &mouseY);
-            if (mouseX >= playButtonRect.x && mouseX <= playButtonRect.x + playButtonRect.w &&
-                mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h)
-            {
-                mouseOverPlay = true;
-            }
-            else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
-                     mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h)
-            {
-                mouseOverQuit = true;
-            }
-            else
-            {
-                mouseOverPlay = false;
-                mouseOverQuit = false;
-            }
-        }
-        else if (e.type == SDL_MOUSEBUTTONDOWN)
-        {
-            SDL_GetMouseState(&mouseX, &mouseY);
-            if (mouseX >= playButtonRect.x && mouseX <= playButtonRect.x + playButtonRect.w &&
-                mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h)
-            {
-                showMainMenu = false; // bắt đầu game
-                currentHealth = maxHealth;
-                if (points > highestPoint)
-                    highestPoint = points;
-                points = 0;
-                level = 1;
-                boss.setActive(false);
-                boss.setHealth(100);
-                currentHealth == maxHealth;
-                gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-            }
-            else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
-                     mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h)
-            {
-                quit = true; // thoát game
-                showMainMenu = false;
-            }
-        }
     }
 }
 
