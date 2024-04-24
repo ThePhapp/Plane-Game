@@ -7,8 +7,8 @@ std::vector<Bullet> Boss::bulletBoss;
 Boss::Boss()
 {
     active = false;
-    speed = 1;
-    bulletSpeed = 2;
+    speed = 5;
+    bulletSpeed = 10;
     rect = {SCREEN_WIDTH - 150, SCREEN_HEIGHT / 2 - 50, 150, 200};
     bossTexture = nullptr;
     bulletTexture = nullptr;
@@ -20,6 +20,34 @@ Boss::~Boss()
 {
     SDL_DestroyTexture(bossTexture);
     SDL_DestroyTexture(bulletTexture);
+}
+
+void Boss::loadBossImage(SDL_Renderer *renderer, const char *filePath)
+{
+    SDL_Surface *surface = IMG_Load(filePath);
+    if (surface)
+    {
+        bossTexture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+    }
+    else
+    {
+        std::cout << "Failed to load Boss texture!" << std::endl;
+    }
+}
+
+void Boss::loadBulletImage(SDL_Renderer *renderer, const char *filePath)
+{
+    SDL_Surface *surface = IMG_Load(filePath);
+    if (surface)
+    {
+        bulletTexture = SDL_CreateTextureFromSurface(renderer, surface);
+        SDL_FreeSurface(surface);
+    }
+    else
+    {
+        std::cout << "Failed to load Bullet's Boss texture!" << std::endl;
+    }
 }
 
 void Boss::render(SDL_Renderer *renderer)
@@ -64,7 +92,7 @@ void Boss::update()
         }
 
         // Randomly shoot bullets
-        if (rand() % 250 == 0)
+        if (rand() % 50 == 0)
         {
             shootBullet();
         }
@@ -94,34 +122,6 @@ void Boss::shootBullet()
     SDL_Rect bulletRect = {rect.x - rect.w / 2 + 25, rect.y + rect.h / 2 - 25, 50, 50};
     Bullet newBullet(bulletRect, true);
     bulletBoss.push_back(newBullet);
-}
-
-void Boss::loadBossImage(SDL_Renderer *renderer, const char *filePath)
-{
-    SDL_Surface *surface = IMG_Load(filePath);
-    if (surface)
-    {
-        bossTexture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
-    }
-    else
-    {
-        std::cout << "Failed to load Boss texture!" << std::endl;
-    }
-}
-
-void Boss::loadBulletImage(SDL_Renderer *renderer, const char *filePath)
-{
-    SDL_Surface *surface = IMG_Load(filePath);
-    if (surface)
-    {
-        bulletTexture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
-    }
-    else
-    {
-        std::cout << "Failed to load Bullet's Boss texture!" << std::endl;
-    }
 }
 
 void Boss::loadExplosionBoss(SDL_Renderer *renderer)

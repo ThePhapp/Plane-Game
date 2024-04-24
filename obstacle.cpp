@@ -9,17 +9,17 @@ void Game::updateObstacle()
 
     if (0 <= points && points < 200)
     {
-        gObstacleRect.x -= 1;
+        gObstacleRect.x -= 4;
         level = 1;
     }
     else if (200 <= points && points < 1800)
     {
-        gObstacleRect.x -= 2;
+        gObstacleRect.x -= 8;
         level = 2;
     }
     else
     {
-        gObstacleRect.x -= 3;
+        gObstacleRect.x -= 12;
         level = 3;
     }
 

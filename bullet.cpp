@@ -35,11 +35,12 @@ void Game::updateBullets()
   {
     if (bullet.active)
     {
-      bullet.rect.x += 5; // Bullet speed
+      bullet.rect.x += 14; // Bullet speed
       if (bullet.rect.x > SCREEN_WIDTH)
       {
         bullet.active = false;
       }
+      SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &bullet.rect);
     }
   }
 }

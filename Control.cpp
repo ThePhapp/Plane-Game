@@ -29,7 +29,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
 
     if (currentKeyStates[SDL_SCANCODE_UP])
     {
-        gSquareRect.y -= 2;
+        gSquareRect.y -= 7;
         if (gSquareRect.y < 0)
         {
             gSquareRect.y = 0;
@@ -38,7 +38,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
 
     if (currentKeyStates[SDL_SCANCODE_DOWN])
     {
-        gSquareRect.y += 2;
+        gSquareRect.y += 7;
         if (gSquareRect.y > SCREEN_HEIGHT - gSquareRect.w)
         {
             gSquareRect.y = SCREEN_HEIGHT - gSquareRect.w;
@@ -47,7 +47,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
 
     if (currentKeyStates[SDL_SCANCODE_LEFT])
     {
-        gSquareRect.x -= 2;
+        gSquareRect.x -= 7;
         if (gSquareRect.x < 0)
         {
             gSquareRect.x = 0;
@@ -56,7 +56,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
 
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {
-        gSquareRect.x += 2;
+        gSquareRect.x += 7;
         if (gSquareRect.x > SCREEN_WIDTH - gSquareRect.w)
         {
             gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;

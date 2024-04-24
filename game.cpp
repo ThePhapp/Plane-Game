@@ -126,6 +126,60 @@ bool Game::initSDL()
     return true;
 }
 
+void Game::updateFPS()
+{
+    Uint32 frameTicks = SDL_GetTicks() - gStartTime;
+    if (frameTicks < SCREEN_TICKS_PER_FRAME)
+    {
+        SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
+    }
+    // Cập nhật thời gian bắt đầu
+    gStartTime = SDL_GetTicks();
+}
+
+void Game::render()
+{
+    SDL_RenderClear(gRenderer);
+    renderBackground();
+    updateFPS();
+    SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
+    SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
+    renderPoints();
+    renderHealth();
+    updateBullets();
+    if (!boss.isActive() && points == 1000)
+    {
+        boss.setActive(true);
+    }
+
+    // Neu boss active, render boss va bullet cua boss
+    if (boss.isActive())
+    {
+        boss.update();
+        boss.render(gRenderer);
+        boss.handleBulletCollision(); // Xy ly va cham boss va bullet
+    }
+
+    loadExplosion();
+
+    boss.loadExplosionBoss(gRenderer);
+
+    if (!Mix_Playing(-1)) // SoundBackground
+    {
+        if (Mix_PlayChannel(-1, gSound, 0) == -1)
+        {
+            std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+        }
+    }
+
+    SDL_RenderPresent(gRenderer);
+}
+
+bool Game::isCollision()
+{
+    return Collision::checkCollision(gSquareRect, gObstacleRect);
+}
+
 void Game::closeSDL()
 {
     SDL_DestroyRenderer(gRenderer);
@@ -152,53 +206,4 @@ void Game::closeSDL()
     SDL_Quit();
     TTF_Quit();
     Mix_Quit();
-}
-
-void Game::render()
-{
-    SDL_RenderClear(gRenderer);
-    renderBackground();
-    SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
-    SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
-    renderPoints();
-    renderHealth();
-    if (!boss.isActive() && points == 1000)
-    {
-        boss.setActive(true);
-    }
-
-    // Neu boss active, render boss va bullet cua boss
-    if (boss.isActive())
-    {
-        boss.update();
-        boss.render(gRenderer);
-        boss.handleBulletCollision(); // Xy ly va cham boss va bullet
-    }
-
-    loadExplosion();
-    boss.loadExplosionBoss(gRenderer);
-
-    if (!Mix_Playing(-1)) // SoundBackground
-    {
-        if (Mix_PlayChannel(-1, gSound, 0) == -1)
-        {
-            std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
-        }
-    }
-
-    for (auto &bullet : bullets)
-    {
-        if (bullet.active)
-        {
-            // Render bullet
-            bullet.rect.x += 4;
-            SDL_RenderCopy(gRenderer, gBulletTexture, nullptr, &bullet.rect);
-        }
-    }
-    SDL_RenderPresent(gRenderer);
-}
-
-bool Game::isCollision()
-{
-    return Collision::checkCollision(gSquareRect, gObstacleRect);
 }

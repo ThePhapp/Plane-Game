@@ -62,7 +62,7 @@ void Game::loadBackground()
 
 void Game::renderBackground() // tao background di chuyen
 {
-    backgroundPosX -= 1;
+    backgroundPosX -= 5;
 
     if (backgroundPosX < -SCREEN_WIDTH)
     {

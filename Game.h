@@ -50,6 +50,7 @@ private:
     void handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver);
     void renderMainMenu();
     void loadExplosion();
+    void updateFPS();
 
 private:
     int backgroundPosX;
@@ -66,6 +67,10 @@ private:
     const int HEALTH_WIDTH = 50;
     const int HEALTH_HEIGHT = 50;
     const int HEALTH_SPACING = 10;
+    const int SCREEN_FPS = 120;
+    const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
+    Uint32 gStartTime;
+
     Boss boss;
     Explosion exp;
 
@@ -98,7 +103,6 @@ private:
     Mix_Chunk *gShotTrung = nullptr;
     Mix_Chunk *gGameOver = nullptr;
     Mix_Chunk *gWin = nullptr;
-
 };
 
 #endif // GAME_H
