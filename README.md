@@ -30,6 +30,7 @@
 - Boss sẽ giảm máu sau mỗi lần bị Player bắn trúng và sẽ bị tiêu diệt khi hết máu.
 
 ### Nhiệm vụ
+![image](https://github.com/ThePhapp/PRJ/assets/161786445/009d4b8e-bbb0-443d-8779-0832e258d74d)
 - Bắn các đối tượng quái <img src="image/obstacle.png" width="32px"> để lấy điểm.
 - Tiêu diệt boss <img src="image/Boss.png" width="32px"> để chiến thắng.
 
@@ -40,13 +41,10 @@
 - ExplosionObject: hàm khởi tạo và render explosion khi Player va chạm hoặc Boss die.
 - Collision.cpp: hàm check va chạm.
 - Control.cpp: gồm các hàm xử lý sự kiện.
-- ImageLoad.cpp: gồm các hàm phục vụ cho việc render.
+- ImageLoad.cpp: gồm các hàm phục vụ cho việc load ảnh, âm thanh, tft.
 
- ## 2. Hướng dẫn cài đặt
-  ![image](https://github.com/ThePhapp/PRJ/assets/161786445/4b2c7ac1-27a0-4fbc-a47c-575128264255)
-
-
- - Chọn Code -> Download Zip
+ ## 2. Hướng dẫn tải game
+ - Click "Download" to download file .zip: [Download](https://github.com/ThePhapp/PRJ/releases/download/release/New.folder.zip)
  - Giải nén file .zip
  - Chạy file main.exe
 
@@ -55,10 +53,12 @@
 ### Xây dựng trên nền tảng C++ và SDL2 bao gồm
 - SDL_Mixer: Hỗ trợ xử lý âm thanh.
 - SDL_Ttf: Hỗ trợ xử lý fonts chữ.
+- Các thư viện mở rộng C++.
 - IDE Visual Studio Code.
 
-### Các kỹ năng áp dụng lậpz
+### Các kỹ năng áp dụng lập trình
  - Các kĩ thuật lập trình C++ cơ bản ( Struct, class, vector, vòng lặp,... )
+ - Biến (static, extern), vòng lặp, cấu trúc rẽ nhánh, mảng, chuỗi.
  - Kỹ thuật kiểm tra xử lý va chạm.
  - Tách file quản lý code.
  - Sử dụng SDL2, SDL2_Image, SDL2_TTF, SDL2_Mixer.
