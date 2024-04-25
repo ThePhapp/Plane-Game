@@ -14,6 +14,8 @@
 const int SCREEN_WIDTH = 1300;
 const int SCREEN_HEIGHT = 900;
 const int SQUARE_SIZE = 60;
+const int SCREEN_FPS = 120;
+const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 class Game
 {
@@ -67,8 +69,6 @@ private:
     const int HEALTH_WIDTH = 50;
     const int HEALTH_HEIGHT = 50;
     const int HEALTH_SPACING = 10;
-    const int SCREEN_FPS = 120;
-    const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
     Uint32 gStartTime;
 
     Boss boss;

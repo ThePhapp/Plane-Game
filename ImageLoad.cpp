@@ -62,7 +62,7 @@ void Game::loadBackground()
 
 void Game::renderBackground() // tao background di chuyen
 {
-    backgroundPosX -= 5;
+    backgroundPosX -= 5;           //background speed
 
     if (backgroundPosX < -SCREEN_WIDTH)
     {
@@ -162,7 +162,7 @@ void Game::renderHealth()
     }
 }
 
-void Game::renderGameOver()
+void Game::renderGameOver()            //hien thi gameOver khi thua
 {
     SDL_Surface *gameOverSurface = IMG_Load("image/GameOver.png");
     if (gameOverSurface)
@@ -184,7 +184,7 @@ void Game::renderGameOver()
     SDL_RenderPresent(gRenderer);
 }
 
-void Game::renderWinMenu()
+void Game::renderWinMenu()           //hien thi win khi thang
 {
     SDL_Surface *gameOverSurface = IMG_Load("image/winmenu.png");
     if (gameOverSurface)
@@ -218,7 +218,7 @@ void Game::loadExplosion() // render explosion
     }
     for (auto &bulletB : Boss::getBulletBoss())
     {
-        if (SDL_HasIntersection(&gSquareRect, &bulletB.rect))
+        if (SDL_HasIntersection(&gSquareRect, &bulletB.rect))                //neu co va cham voi dan cua boss thi render explosion
         {
             if (!exp.isExploding())
             {

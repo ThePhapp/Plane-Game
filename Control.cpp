@@ -2,6 +2,8 @@
 
 void Game::handleEvent(SDL_Event &e, bool &quit)
 {
+    static bool spacePressed = false; // Biến để kiểm tra xem nút Space đã được nhấn hay chưa tránh spawn đạn
+
     while (SDL_PollEvent(&e) != 0)
     {
         if (e.type == SDL_QUIT)
@@ -10,13 +12,21 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
         }
         else if (e.type == SDL_KEYDOWN)
         {
-            if (e.key.keysym.sym == SDLK_SPACE)
+            if (e.key.keysym.sym == SDLK_SPACE && !spacePressed)
             {
                 fireBullet();
                 if (Mix_PlayChannel(-1, gShootSound, 0) == -1)
                 {
                     std::cout << "Failed to play shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
                 }
+                spacePressed = true;
+            }
+        }
+        else if (e.type == SDL_KEYUP)
+        {
+            if (e.key.keysym.sym == SDLK_SPACE)
+            {
+                spacePressed = false;
             }
         }
     }
@@ -64,7 +74,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
     }
 }
 
-void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // Main Menu
+void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // xử lý thao tác Main Menu
 {
     int mouseX, mouseY;
     playButtonRect = {SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT * 5 / 7 + 40, 150, 70};
@@ -122,7 +132,7 @@ void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // 
     }
 }
 
-void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver)
+void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver) // xử lý thao tác khi GameOver
 {
     int mouseX, mouseY;
     playAgainButtonRect = {SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT * 3 / 4 - 50, 400, 90};

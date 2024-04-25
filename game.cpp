@@ -71,7 +71,7 @@ void Game::run()
             if (!boss.isActive() && points > 1000)
             {
                 Uint32 currentTime = SDL_GetTicks();
-                if (currentTime - boss.explosionStartTime >= 410)
+                if (currentTime - boss.explosionStartTime >= 410) // render hết boss's Explosion xong mới render win menu
                 {
                     gameOver = true;
                     renderWinMenu();
@@ -126,7 +126,7 @@ bool Game::initSDL()
     return true;
 }
 
-void Game::updateFPS()
+void Game::updateFPS() // điều chỉnh fps cho game
 {
     Uint32 frameTicks = SDL_GetTicks() - gStartTime;
     if (frameTicks < SCREEN_TICKS_PER_FRAME)
@@ -175,7 +175,7 @@ void Game::render()
     SDL_RenderPresent(gRenderer);
 }
 
-bool Game::isCollision()
+bool Game::isCollision() // hàm kiểm tra va chạm
 {
     return Collision::checkCollision(gSquareRect, gObstacleRect);
 }

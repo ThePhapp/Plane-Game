@@ -18,20 +18,29 @@
 - <img src="image/obstacle.png" width="32px"> *Enemy (Obstacle)* là các đối tượng mà Player phải tiêu diệt. Enemy xuất hiện ngẫu nhiên và có tốc độ di chuyển ngẫu nhiêu.
 - <img src="image/Boss.png" width="32px"> *Boss* là đối tượng mà Player phải tiêu diệt. Boss có thể di chuyển lên xuống và có thể bắn ra đạn ngẫu nhiên.
 - ![](image/Bullet.png)   ![](image/BossBullet.png) *Bullet* là đối tượng mà cả Player và Boss đều có thể bắn ra. Player có thể bắn ![](image/Bullet.png) Bullet liên tục bằng nút SPACE, còn Boss bắn ![](image/BossBullet.png) Bullet với rate ngẫu nhiên. Bullet của Boss luôn bay theo hướng từ phải sang trái.
-- <img src="image/health.png" width="48px"> Mạng của người chơi, điểm số.
+- <img src="image/health.png" width="56px"> Mạng của người chơi, điểm số.
 ### Hướng dẫn chơi
 ![image](https://github.com/ThePhapp/PRJ/assets/161786445/aa5ba866-4510-4b45-a3a5-71c86dfb4b57)
 
 - Nhấp chuột vào Play để bắt đầu trò chơi.
 - Di chuyển Player bằng các nút mũi tên ↑ ↓ ← → và bắn đạn bằng nút SPACE.
 - Trong một màn chơi, Player sẽ được người chơi di chuyển, bắn hạ kẻ địch, đồng thời né đạn và mỗi lần bắn hạ Enemy sẽ được 100 points.
-- Player sẽ có 3 mạng và sẽ mất 1 mạng khi va chạm với Enemy, bị trúng đạn của Boss hoặc bắn miss 4 lần. Khi mạng của Player bằng 0 trò chơi kết thúc.
+- Player sẽ có 3 mạng <img src="image/health.png" width="56px"> và sẽ mất 1 mạng khi va chạm với Enemy, bị trúng đạn của Boss hoặc bắn miss 4 lần. Khi mạng của Player bằng 0 trò chơi kết thúc.
 - Enemy bị tiêu diệt khi trúng đạn của Player.
 - Boss sẽ giảm máu sau mỗi lần bị Player bắn trúng và sẽ bị tiêu diệt khi hết máu.
 
 ### Nhiệm vụ
-- Bắn các đối tượng quái để lấy điểm.
-- Tiêu diệt boss để chiến thắng.
+- Bắn các đối tượng quái <img src="image/obstacle.png" width="32px"> để lấy điểm.
+- Tiêu diệt boss <img src="image/Boss.png" width="32px"> để chiến thắng.
+
+### Các cấu trúc chính trong Game
+- Game.cpp: hàm chính của game, thực hiện các nhiệm vụ chính.
+- Bullet.cpp: Hàm tạo đạn cho Player và xử lý các thao tác với đạn.
+- BossObject.cpp: hàm tạo ra Boss có thể di chuyển, bắn ra đạn.
+- ExplosionObject: hàm khởi tạo và render explosion khi Player va chạm hoặc Boss die.
+- Collision.cpp: hàm check va chạm.
+- Control.cpp: gồm các hàm xử lý sự kiện.
+- ImageLoad.cpp: gồm các hàm phục vụ cho việc render.
 
  ## 2. Hướng dẫn cài đặt
   ![image](https://github.com/ThePhapp/PRJ/assets/161786445/4b2c7ac1-27a0-4fbc-a47c-575128264255)
@@ -43,7 +52,7 @@
 
  ## 3. Kỹ thuật lập trình <br />
  
- ### Xây dựng trên nền tảng C++ và SDL2 bao gồm
+### Xây dựng trên nền tảng C++ và SDL2 bao gồm
 - SDL_Mixer: Hỗ trợ xử lý âm thanh.
 - SDL_Ttf: Hỗ trợ xử lý fonts chữ.
 - IDE Visual Studio Code.
