@@ -9,7 +9,7 @@
 
 “War's Plane” là một tựa game bắn máy bay đơn giản, hấp dẫn, được viết bằng ngôn ngữ C++ và sử dụng thư viện SDL2 để tạo ra trải nghiệm đỉnh cao trên bầu trời. Trong War's Plane, bạn sẽ được trải nghiệm cảm giác hồi hộp, gay cấn khi tham gia vào những trận đại chiến không ngừng nghỉ giữa các đội máy bay chiến đấu.
 
-#Video Demo: [Youtube.com](https://www.facebook.com/ThePhappp)
+#Video Demo: [Youtube.com](https://www.youtube.com/watch?v=eDS8nbxLrMA)
 
 ## 1. Mô tả chung <br />
 ### Các đối tượng trong Game
