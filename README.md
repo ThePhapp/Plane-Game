@@ -30,16 +30,46 @@
 - Each level changes enemy speed, boss speed, and boss bullet speed for a unique experience.
 
 ### How to Play
-
+![image](https://github.com/ThePhapp/PRJ/assets/161786445/aa5ba866-4510-4b45-a3a5-71c86dfb4b57)
 - Click **Play** to start, then select your level.
 - Move with arrow keys, shoot with SPACE.
+![image](https://github.com/ThePhapp/PRJ/assets/161786445/009d4b8e-bbb0-443d-8779-0832e258d74d)
 - Destroy enemies for +100 points each.
 - Survive and defeat the boss to win!
 - Game ends when you lose all lives.
-
 ---
+## 2. Project Structure
 
-## 2. Main Game Components
+```
+Plane-Game/
+│
+├── src/
+│   ├── main.cpp
+│   ├── Game.cpp
+│   ├── Game.h
+│   ├── Control.cpp
+│   ├── Control.h
+│   ├── ImageLoad.cpp
+│   ├── ImageLoad.h
+│   ├── Collision.cpp
+│   ├── Collision.h
+│   ├── BulletObject/
+│   │   ├── Bullet.cpp
+│   │   ├── Bullet.h
+│   ├── ObstacleObject/
+│   │   ├── Obstacle.cpp
+│   │   ├── Obstacle.h
+│   ├── ExplosionObject/
+│   │   ├── ExplosionObject.cpp
+│   │   ├── ExplosionObject.h
+│   ├── BossObject/
+│   │   ├── BossObject.cpp
+│   │   ├── BossObject.h
+│   └── include/
+│       └── SDL2/
+
+```
+## 3. Main Game Components
 
 - **Game.cpp:** Main game loop and logic.
 - **Control.cpp:** Handles user input and game events.
@@ -52,7 +82,7 @@
 
 ---
 
-## 3. Download & Run
+## 4. Download & Run
 
 - Download the `.zip` file and extract it.
 - Run `PlaneGame.exe` to start the game.
@@ -60,7 +90,7 @@
 
 ---
 
-## 4. Programming Techniques
+## 5. Programming Techniques
 
 - **C++ OOP:** Classes, structs, vectors, encapsulation.
 - **SDL2:** Graphics, sound, fonts, and input handling.
@@ -71,7 +101,7 @@
 
 ---
 
-## 5. References
+## 6. References
 
 - [Lazyfoo SDL2 Tutorials](https://lazyfoo.net/tutorials/SDL/)
 - [SDL2 Documentation](https://wiki.libsdl.org/)
