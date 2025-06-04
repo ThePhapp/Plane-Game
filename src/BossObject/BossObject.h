@@ -7,8 +7,8 @@
 #include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <vector>
-#include "bullet.h"
-#include "ExplosionObject.h"
+#include "BulletObject/bullet.h"
+#include "ExplosionObject/ExplosionObject.h"
 
 class Boss
 {
@@ -18,7 +18,7 @@ public:
 
     void render(SDL_Renderer *renderer);
     void update();
-    void handleBulletCollision();
+    bool handleBulletCollision(); // trả về true nếu boss chết
     void shootBullet();
     void loadBossImage(SDL_Renderer *renderer, const char *filePath);
     void loadBulletImage(SDL_Renderer *renderer, const char *filePath);
@@ -27,20 +27,23 @@ public:
     bool isActive() const { return active; }
     void setActive(bool state) { active = state; }
     void setHealth(int healthB) { health = healthB; }
-    
-    static std::vector<Bullet> &getBulletBoss() { return bulletBoss; }
+    bool isExploding() const { return exp1.isExploding(); }
+    void startExplosion(SDL_Renderer* renderer);
+    Uint32 getExplosionStartTime() const { return explosionStartTime; }
     void loadExplosionBoss(SDL_Renderer *renderer);
-    Uint32 explosionStartTime;
+
+    static std::vector<Bullet> &getBulletBoss() { return bulletBoss; }
 
 private:
     SDL_Texture *bossTexture;
     SDL_Texture *bulletTexture;
     SDL_Rect rect;
     bool active;
-    bool activeBullet;
     int speed;
     int health;
     int bulletSpeed;
+    Uint32 lastShootTime;
+    Uint32 explosionStartTime;
     static std::vector<Bullet> bulletBoss;
     Explosion exp1;
 };

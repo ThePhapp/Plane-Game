@@ -1,4 +1,14 @@
 #include "Game.h"
+#include "Control.h"
+#include "BulletObject/Bullet.h"
+#include "ExplosionObject/ExplosionObject.h"
+#include "BossObject/BossObject.h"
+#include "Collision.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
+
 std::vector<Bullet> Game::bullets;
 
 Game::Game()
@@ -69,15 +79,15 @@ void Game::run()
             }
 
             if (!boss.isActive() && points > 1000)
-            {
-                Uint32 currentTime = SDL_GetTicks();
-                if (currentTime - boss.explosionStartTime >= 410) // render hết boss's Explosion xong mới render win menu
-                {
-                    gameOver = true;
-                    renderWinMenu();
-                    isObstacleActive = false;
-                }
-            }
+{
+    Uint32 currentTime = SDL_GetTicks();
+    if (currentTime - boss.getExplosionStartTime() >= 410)
+    {
+        gameOver = true;
+        renderWinMenu();
+        isObstacleActive = false;
+    }
+}
         }
 
         while (gameOver && !quit)

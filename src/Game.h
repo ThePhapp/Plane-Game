@@ -7,9 +7,9 @@
 #include <SDL2/SDL_mixer.h>
 #include "Collision.h"
 #include <vector>
-#include "bullet.h"
-#include "bossobject.h"
-#include "ExplosionObject.h"
+#include "BulletObject/Bullet.h"
+#include "BossObject/BossObject.h"
+#include "ExplosionObject/ExplosionObject.h"
 
 const int SCREEN_WIDTH = 1300;
 const int SCREEN_HEIGHT = 900;
