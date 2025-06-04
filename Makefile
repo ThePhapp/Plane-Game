@@ -23,3 +23,5 @@ $(TARGET): $(SRC)
 
 clean:
 	del /Q $(TARGET) src\*.o src\BulletObject\*.o src\ObstacleObject\*.o src\ExplosionObject\*.o src\BossObject\*.o
+
+#mingw32-make      

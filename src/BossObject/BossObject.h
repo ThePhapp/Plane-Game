@@ -27,6 +27,8 @@ public:
     bool isActive() const { return active; }
     void setActive(bool state) { active = state; }
     void setHealth(int healthB) { health = healthB; }
+    void setBulletSpeed(int s) { bulletSpeed = s; }
+    void setSpeed(int s) { speed = s; }
     bool isExploding() const { return exp1.isExploding(); }
     void startExplosion(SDL_Renderer* renderer);
     Uint32 getExplosionStartTime() const { return explosionStartTime; }

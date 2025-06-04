@@ -53,6 +53,8 @@ private:
     void renderMainMenu();
     void loadExplosion();
     void updateFPS();
+    void showLevelMenu();
+    void applyLevelSettings();
 
 private:
     int backgroundPosX;
