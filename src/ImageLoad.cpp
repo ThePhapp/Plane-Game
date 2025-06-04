@@ -256,23 +256,42 @@ void Game::renderMainMenu()
 {
     SDL_RenderCopy(gRenderer, gMenuTexture, nullptr, &menuRect);
 
-    // Vẽ Play và Quit button
-    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 120);
+    SDL_Rect overlay = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+    SDL_RenderFillRect(gRenderer, &overlay);
 
-    // Vẽ Play button
-    if (mouseOverPlay)
-    {
-        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
-    }
+    SDL_SetRenderDrawColor(gRenderer, mouseOverPlay ? 0 : 50, mouseOverPlay ? 255 : 200, 0, 255);
+    SDL_RenderFillRect(gRenderer, &playButtonRect);
+    SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(gRenderer, &playButtonRect);
 
-    // Vẽ Quit button
+    SDL_SetRenderDrawColor(gRenderer, mouseOverQuit ? 255 : 200, 0, 0, 255);
+    SDL_RenderFillRect(gRenderer, &quitButtonRect);
     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
-    if (mouseOverQuit)
-    {
-        SDL_SetRenderDrawColor(gRenderer, 255, 0, 0, 0);
-    }
     SDL_RenderDrawRect(gRenderer, &quitButtonRect);
+
+    TTF_Font* font = TTF_OpenFont("font/2.ttf", 48);
+    if (font)
+    {
+        SDL_Color color = {255, 255, 255, 255};
+        struct { const char* text; SDL_Rect rect; } buttons[] = {
+            {"PLAY", playButtonRect},
+            {"QUIT", quitButtonRect}
+        };
+        for (auto& btn : buttons)
+        {
+            SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font, btn.text, color);
+            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+            int tw, th;
+            SDL_QueryTexture(textTexture, NULL, NULL, &tw, &th);
+            SDL_Rect textRect = {btn.rect.x + (btn.rect.w-tw)/2, btn.rect.y + (btn.rect.h-th)/2, tw, th};
+            SDL_RenderCopy(gRenderer, textTexture, NULL, &textRect);
+            SDL_FreeSurface(textSurface);
+            SDL_DestroyTexture(textTexture);
+        }
+        TTF_CloseFont(font);
+    }
 
     SDL_RenderPresent(gRenderer);
 }

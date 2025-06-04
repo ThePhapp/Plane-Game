@@ -132,7 +132,7 @@ void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // 
     }
 }
 
-void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver) // xử lý thao tác khi GameOver
+void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver)
 {
     int mouseX, mouseY;
     playAgainButtonRect = {SCREEN_WIDTH / 2 - 200, SCREEN_HEIGHT * 3 / 4 - 50, 400, 90};
@@ -154,23 +154,19 @@ void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver) // xử
                 if (points > highestPoint)
                     highestPoint = points;
                 points = 0;
-                level = 1;
                 miss = 0;
                 boss.setActive(false);
                 boss.setHealth(100);
-                currentHealth == maxHealth;
-                gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-                for (auto &bullet : bullets)
-                {
-                    bullet.rect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
-                }
                 currentHealth = maxHealth;
+                gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
+                bullets.clear();
             }
             else if (mouseX >= backToMenuButtonRect.x && mouseX <= backToMenuButtonRect.x + backToMenuButtonRect.w &&
                      mouseY >= backToMenuButtonRect.y && mouseY <= backToMenuButtonRect.y + backToMenuButtonRect.h)
             {
                 gameOver = false;
                 showMainMenu = true;
+                level = 1;
             }
         }
     }
