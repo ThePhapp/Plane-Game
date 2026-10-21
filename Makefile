@@ -7,7 +7,6 @@ SRC = \
     src/Game.cpp \
     src/Control.cpp \
     src/ImageLoad.cpp \
-    src/Collision.cpp \
     src/BulletObject/Bullet.cpp \
     src/ObstacleObject/Obstacle.cpp \
     src/ExplosionObject/ExplosionObject.cpp \

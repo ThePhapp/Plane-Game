@@ -1,6 +1,6 @@
 #include "Obstacle.h"
 #include <cmath>
-#include "Game.h"
+#include "Config.h"
 
 Obstacle::Obstacle()
     : texture(nullptr), type(ENEMY_BASIC), active(false), speed(4), health(10), points(100), maxHealth(10)

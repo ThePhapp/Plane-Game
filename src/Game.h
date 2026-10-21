@@ -5,7 +5,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include "Collision.h"
+#include "Config.h"
 #include <vector>
 #include <array>
 #include "BulletObject/Bullet.h"
@@ -17,12 +17,6 @@
 #include "AchievementSystem/Achievement.h"
 #include "LeaderboardSystem/Leaderboard.h"
 #include "ObstacleObject/Obstacle.h"
-
-const int SCREEN_WIDTH = 1300;
-const int SCREEN_HEIGHT = 900;
-const int SQUARE_SIZE = 60;
-const int SCREEN_FPS = 120;
-const int SCREEN_TICKS_PER_FRAME = 1000 / SCREEN_FPS;
 
 class Game
 {

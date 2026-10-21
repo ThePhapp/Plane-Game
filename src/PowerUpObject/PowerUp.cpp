@@ -1,5 +1,5 @@
 #include "PowerUp.h"
-#include "Game.h"
+#include "Config.h"
 
 PowerUp::PowerUp()
     : texture(nullptr), active(false), speed(3), duration(5000)
