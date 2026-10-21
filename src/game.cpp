@@ -216,8 +216,14 @@ bool Game::initSDL()
     gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
     if (gRenderer == nullptr)
     {
-        std::cout << "Renderer creation failed: " << SDL_GetError() << std::endl;
-        return false;
+        std::cout << "Accelerated renderer unavailable, using software renderer: "
+                  << SDL_GetError() << std::endl;
+        gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_SOFTWARE);
+        if (gRenderer == nullptr)
+        {
+            std::cout << "Renderer creation failed: " << SDL_GetError() << std::endl;
+            return false;
+        }
     }
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) // init sdl_image
