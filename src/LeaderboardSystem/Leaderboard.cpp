@@ -20,7 +20,7 @@ void Leaderboard::addScore(const ScoreEntry& entry)
     sortScores();
     
     // Keep only top scores
-    if (topScores.size() > maxEntries)
+    if (topScores.size() > static_cast<std::size_t>(maxEntries))
     {
         topScores.resize(maxEntries);
     }

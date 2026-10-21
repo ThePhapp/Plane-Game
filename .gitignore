@@ -3,6 +3,7 @@
 *.o
 *.obj
 *.out
+*.d
 
 # Bỏ thư viện Windows
 *.dll
