@@ -765,10 +765,12 @@ void Game::loadGame()
     GameData data;
     if (saveSystem.loadProgress("savegame.dat", data))
     {
-        highestPoint = data.highScore;
+        highestPoint = std::max(0, data.highScore);
+        level = std::clamp(data.level, 1, 3);
         
         // Load weapon level
-        for (int i = 1; i < data.weaponLevel; i++)
+        const int savedWeaponLevel = std::clamp(data.weaponLevel, 1, 5);
+        for (int i = 1; i < savedWeaponLevel; i++)
             playerWeapon.upgrade();
         
         // Load achievements

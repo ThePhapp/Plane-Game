@@ -53,6 +53,15 @@ bool SaveGame::loadProgress(const std::string& filename, GameData& data)
         std::cout << "Save file is invalid or incomplete: " << fullPath << std::endl;
         return false;
     }
+
+    if (data.highScore < 0 || data.coins < 0 ||
+        data.level < 1 || data.level > 3 ||
+        data.weaponLevel < 1 || data.weaponLevel > 5)
+    {
+        data = {};
+        std::cout << "Save file contains invalid progression values: " << fullPath << std::endl;
+        return false;
+    }
     
     std::cout << "Game loaded successfully from " << fullPath << std::endl;
     return true;

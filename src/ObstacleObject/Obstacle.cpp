@@ -81,7 +81,8 @@ void Obstacle::update(SDL_Rect playerRect, float deltaSeconds)
     }
     
     // Deactivate if out of screen
-    if (rect.x + rect.w < 0 || rect.x > 1280 || rect.y < -100 || rect.y > 820)
+    if (rect.x + rect.w < 0 || rect.x > SCREEN_WIDTH ||
+        rect.y < -100 || rect.y > SCREEN_HEIGHT)
         active = false;
 }
 
