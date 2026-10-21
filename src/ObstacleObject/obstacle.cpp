@@ -3,13 +3,13 @@
 #include "Game.h"
 
 Obstacle::Obstacle()
-    : texture(nullptr), active(false), speed(4), health(10), points(100), type(ENEMY_BASIC), maxHealth(10)
+    : texture(nullptr), type(ENEMY_BASIC), active(false), speed(4), health(10), points(100), maxHealth(10)
 {
     rect = {0, 0, 80, 80};
 }
 
 Obstacle::Obstacle(int x, int y, EnemyType eType)
-    : texture(nullptr), active(true), type(eType)
+    : texture(nullptr), type(eType), active(true)
 {
     rect = {x, y, 80, 80};
     

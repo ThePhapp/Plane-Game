@@ -2,38 +2,54 @@
 #include "BossObject/BossObject.h"
 #include <algorithm>
 
-void Game::fireBullet()
+bool Game::fireBullet()
 {
     Uint32 currentTime = SDL_GetTicks();
     int fireRate = hasRapidFire ? 100 : playerWeapon.getFireRate();
     
     // Check fire rate limit
-    if (currentTime - lastFireTime < fireRate)
-        return;
+    if (lastFireTime != 0 && currentTime - lastFireTime < static_cast<Uint32>(fireRate))
+        return false;
     
     lastFireTime = currentTime;
     shotsFired++;
-    
-    // Normal bullet
-    Bullet bullet;
-    bullet.rect.x = gSquareRect.x + gSquareRect.w / 2;
-    bullet.rect.y = gSquareRect.y + gSquareRect.h / 2 - 25;
-    bullet.rect.w = 50;
-    bullet.rect.h = 50;
-    bullet.active = true;
-    bullets.push_back(bullet);
-    
-    // Double shot power-up
-    if (hasDoubleShot)
+
+    auto addBullet = [this](int yOffset, int width, int height)
     {
-        Bullet bullet2;
-        bullet2.rect.x = gSquareRect.x + gSquareRect.w / 2;
-        bullet2.rect.y = gSquareRect.y + gSquareRect.h / 2 + 5;
-        bullet2.rect.w = 50;
-        bullet2.rect.h = 50;
-        bullet2.active = true;
-        bullets.push_back(bullet2);
+        Bullet bullet;
+        bullet.rect = {
+            gSquareRect.x + gSquareRect.w / 2,
+            gSquareRect.y + gSquareRect.h / 2 - height / 2 + yOffset,
+            width,
+            height
+        };
+        bullet.active = true;
+        bullets.push_back(bullet);
+    };
+
+    switch (playerWeapon.getType())
+    {
+        case WEAPON_LASER:
+            addBullet(0, 70, 14);
+            break;
+        case WEAPON_MISSILE:
+            addBullet(0, 60, 30);
+            break;
+        case WEAPON_SPREAD:
+            addBullet(-24, 50, 50);
+            addBullet(0, 50, 50);
+            addBullet(24, 50, 50);
+            break;
+        case WEAPON_NORMAL:
+        default:
+            addBullet(0, 50, 50);
+            break;
     }
+
+    if (hasDoubleShot)
+        addBullet(10, 50, 50);
+
+    return true;
 }
 
 void Game::updateBullets(float deltaSeconds)

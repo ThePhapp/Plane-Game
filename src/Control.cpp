@@ -2,8 +2,6 @@
 
 void Game::handleEvent(SDL_Event &e, bool &quit, float deltaSeconds)
 {
-    static bool spacePressed = false; // Biến để kiểm tra xem nút Space đã được nhấn hay chưa tránh spawn đạn
-
     while (SDL_PollEvent(&e) != 0)
     {
         if (e.type == SDL_QUIT)
@@ -12,22 +10,19 @@ void Game::handleEvent(SDL_Event &e, bool &quit, float deltaSeconds)
         }
         else if (e.type == SDL_KEYDOWN)
         {
-            if (e.key.keysym.sym == SDLK_SPACE && !spacePressed)
+            if (e.key.keysym.sym == SDLK_u && points >= 500 && playerWeapon.getLevel() < 5)
             {
-                fireBullet();
-                if (Mix_PlayChannel(-1, gShootSound, 0) == -1)
-                {
-                    std::cout << "Failed to play shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
-                }
-                spacePressed = true;
+                points -= 500;
+                playerWeapon.upgrade();
             }
-        }
-        else if (e.type == SDL_KEYUP)
-        {
-            if (e.key.keysym.sym == SDLK_SPACE)
-            {
-                spacePressed = false;
-            }
+            else if (e.key.keysym.sym == SDLK_1)
+                playerWeapon.setType(WEAPON_NORMAL);
+            else if (e.key.keysym.sym == SDLK_2)
+                playerWeapon.setType(WEAPON_LASER);
+            else if (e.key.keysym.sym == SDLK_3)
+                playerWeapon.setType(WEAPON_MISSILE);
+            else if (e.key.keysym.sym == SDLK_4)
+                playerWeapon.setType(WEAPON_SPREAD);
         }
     }
 
@@ -73,6 +68,12 @@ void Game::handleEvent(SDL_Event &e, bool &quit, float deltaSeconds)
         {
             gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;
         }
+    }
+
+    if (currentKeyStates[SDL_SCANCODE_SPACE] && fireBullet())
+    {
+        if (Mix_PlayChannel(-1, gShootSound, 0) == -1)
+            std::cout << "Failed to play shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 }
 

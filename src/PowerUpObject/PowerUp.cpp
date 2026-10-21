@@ -9,7 +9,7 @@ PowerUp::PowerUp()
 }
 
 PowerUp::PowerUp(int x, int y, PowerUpType pType)
-    : texture(nullptr), active(true), speed(3), type(pType)
+    : texture(nullptr), type(pType), active(true), speed(3)
 {
     rect = {x, y, 40, 40};
     

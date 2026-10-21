@@ -48,7 +48,7 @@ private:
     void renderWinMenu();
     void renderHealth();
     void handleBossBulletCollision();
-    void fireBullet();
+    bool fireBullet();
     void updateBullets(float deltaSeconds);
     void handleEvent(SDL_Event &e, bool &quit, float deltaSeconds);
     void loadTextTexture(const std::string &text);
@@ -82,11 +82,11 @@ private:
 
 private:
     int backgroundPosX;
-    int points;
+    int points = 0;
     int level = 1;
     int highestPoint = 0;
     int maxHealth = 3;
-    int currentHealth;
+    int currentHealth = 0;
     bool showMainMenu = true;
     bool mouseOverPlay = false;
     bool mouseOverQuit = false;
@@ -121,6 +121,7 @@ private:
     int shotsHit;
     Uint32 levelStartTime;
     Uint32 damageCooldownEnd = 0;
+    float enemySpawnTimer = 0.0f;
 
     SDL_Window *gWindow = nullptr;
     SDL_Renderer *gRenderer = nullptr;

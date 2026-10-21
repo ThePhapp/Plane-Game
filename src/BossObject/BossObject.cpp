@@ -8,14 +8,14 @@ std::vector<Bullet> Boss::bulletBoss;
 Boss::Boss()
     : bossTexture(nullptr), bulletTexture(nullptr), active(false), speed(5), health(100),
       maxHealth(100), bulletSpeed(10), type(BOSS_NORMAL), phase(1), 
-      explosionStartTime(0), lastShootTime(0)
+      lastShootTime(0), explosionStartTime(0)
 {
     rect = {SCREEN_WIDTH - 150, SCREEN_HEIGHT / 2 - 50, 150, 200};
 }
 
 Boss::Boss(BossType bType)
     : bossTexture(nullptr), bulletTexture(nullptr), active(false), type(bType), 
-      phase(1), explosionStartTime(0), lastShootTime(0)
+      phase(1), lastShootTime(0), explosionStartTime(0)
 {
     // Set properties based on boss type
     switch(type)
@@ -211,7 +211,7 @@ void Boss::update(float deltaSeconds)
     Uint32 now = SDL_GetTicks();
     int shootInterval = (phase == 2) ? 300 : 500; // Faster in phase 2
     
-    if (now - lastShootTime > shootInterval)
+    if (now - lastShootTime > static_cast<Uint32>(shootInterval))
     {
         shootPattern();
         lastShootTime = now;

@@ -68,6 +68,7 @@ void Game::resetRun()
     doubleShotEndTime = 0;
     lastFireTime = 0;
     damageCooldownEnd = 0;
+    enemySpawnTimer = 0.0f;
     levelStartTime = SDL_GetTicks();
 
     bullets.clear();
@@ -137,9 +138,14 @@ void Game::run()
             handlePowerUpCollision();
             handleBossBulletCollision();
             
-            // Spawn new enemies periodically
-            if (obstacles.size() < 5 && rand() % 100 < 3)
+            // Spawn enemies on a time-based schedule instead of per-frame randomness.
+            enemySpawnTimer += deltaSeconds;
+            const float spawnInterval = std::max(0.35f, 1.15f - level * 0.2f);
+            if (obstacles.size() < 5 && enemySpawnTimer >= spawnInterval)
+            {
+                enemySpawnTimer = 0.0f;
                 spawnObstacleNew();
+            }
 
             if (!boss.isActive() && boss.getHealth() > 0 && points >= 1000)
                 boss.setActive(true);
@@ -358,8 +364,6 @@ void Game::showLevelMenu()
 
 void Game::applyLevelSettings()
 {
-    BossType bossType;
-    
     switch (level)
     {
     case 1: // Easy - Normal Boss
@@ -472,16 +476,12 @@ void Game::closeSDL()
 
 void Game::spawnPowerUp()
 {
-    // Random spawn (10% chance)
-    if (rand() % 100 < 10)
-    {
-        int x = SCREEN_WIDTH;
-        int y = rand() % (SCREEN_HEIGHT - 100) + 50;
-        PowerUpType type = static_cast<PowerUpType>(rand() % 5);
-        
-        powerUps.emplace_back(x, y, type);
-        powerUps.back().setTexture(powerUpTextures[type]);
-    }
+    int x = SCREEN_WIDTH;
+    int y = rand() % (SCREEN_HEIGHT - 100) + 50;
+    PowerUpType type = static_cast<PowerUpType>(rand() % 5);
+
+    powerUps.emplace_back(x, y, type);
+    powerUps.back().setTexture(powerUpTextures[type]);
 }
 
 void Game::updatePowerUps(float deltaSeconds)
@@ -610,7 +610,7 @@ void Game::spawnObstacleNew()
     }
     
     int x = SCREEN_WIDTH;
-    int y = rand() % (SCREEN_HEIGHT - 100) + 50;
+    int y = rand() % (SCREEN_HEIGHT - 150) + 50;
     
     Obstacle obstacle(x, y, type);
     
@@ -702,7 +702,7 @@ void Game::saveGame()
     // Save achievements
     for (int i = 0; i < 10; i++)
     {
-        if (i < achievements.getAchievements().size())
+        if (i < static_cast<int>(achievements.getAchievements().size()))
             data.achievements[i] = achievements.getAchievements()[i].unlocked;
         else
             data.achievements[i] = false;
@@ -724,7 +724,7 @@ void Game::loadGame()
             playerWeapon.upgrade();
         
         // Load achievements
-        for (int i = 0; i < 10 && i < achievements.getAchievements().size(); i++)
+        for (int i = 0; i < 10 && i < static_cast<int>(achievements.getAchievements().size()); i++)
         {
             if (data.achievements[i])
                 achievements.unlock(static_cast<AchievementID>(i));

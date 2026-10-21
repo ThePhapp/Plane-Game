@@ -97,15 +97,27 @@ void Game::renderBackground(float deltaSeconds) // tao background di chuyen
 
 void Game::renderPoints()
 {
-    std::string pointString = "     Score: " + std::to_string(points) + "           Highest: " + std::to_string(highestPoint) + "                                                Level: " + std::to_string(level) +
-                              "          Accuracy: " +
+    const char* weaponName = "Normal";
+    switch (playerWeapon.getType())
+    {
+        case WEAPON_LASER: weaponName = "Laser"; break;
+        case WEAPON_MISSILE: weaponName = "Missile"; break;
+        case WEAPON_SPREAD: weaponName = "Spread"; break;
+        case WEAPON_NORMAL: default: break;
+    }
+    std::string pointString = "Score: " + std::to_string(points) +
+                              "  High: " + std::to_string(highestPoint) +
+                              "  Level: " + std::to_string(level) +
+                              "  Weapon: " + weaponName + " Lv." +
+                              std::to_string(playerWeapon.getLevel()) +
+                              "  Accuracy: " +
                               (shotsFired > 0 ? std::to_string((shotsHit * 100) / shotsFired) : "0") + "%";
     if (font1 == nullptr)
     {
         std::cout << "Failed to load font: " << TTF_GetError() << std::endl;
         return;
     }
-    SDL_Color textColor = {255, 255, 255};
+    SDL_Color textColor = {255, 255, 255, 255};
     textSurface = TTF_RenderText_Solid(font1, pointString.c_str(), textColor);
     if (textSurface == nullptr)
     {
