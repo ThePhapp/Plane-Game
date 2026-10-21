@@ -1,4 +1,4 @@
-#include "explosionobject.h"
+#include "ExplosionObject.h"
 #include <SDL2/SDL_image.h>
 
 #define EXP_WIDTH 64

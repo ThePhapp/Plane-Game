@@ -7,7 +7,7 @@
 #include <SDL2/SDL_mixer.h>
 #include <iostream>
 #include <vector>
-#include "BulletObject/bullet.h"
+#include "BulletObject/Bullet.h"
 #include "ExplosionObject/ExplosionObject.h"
 
 enum BossType

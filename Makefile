@@ -4,12 +4,12 @@ LDFLAGS = -Llib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf
 
 SRC = \
     src/main.cpp \
-    src/game.cpp \
+    src/Game.cpp \
     src/Control.cpp \
     src/ImageLoad.cpp \
-    src/collision.cpp \
-    src/BulletObject/bullet.cpp \
-    src/ObstacleObject/obstacle.cpp \
+    src/Collision.cpp \
+    src/BulletObject/Bullet.cpp \
+    src/ObstacleObject/Obstacle.cpp \
     src/ExplosionObject/ExplosionObject.cpp \
     src/BossObject/BossObject.cpp \
     src/PowerUpObject/PowerUp.cpp \

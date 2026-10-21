@@ -1,4 +1,4 @@
-#include "game.h"
+#include "Game.h"
 
 SDL_Texture *Game::loadTexture(const std::string &path)
 {

@@ -1,4 +1,4 @@
-#include "game.h"
+#include "Game.h"
 #include "BossObject/BossObject.h"
 #include <algorithm>
 

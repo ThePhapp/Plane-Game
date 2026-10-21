@@ -1,5 +1,5 @@
 
-#include "collision.h"
+#include "Collision.h"
 
 bool Collision::checkCollision(SDL_Rect a, SDL_Rect b)
 {

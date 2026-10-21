@@ -1,4 +1,4 @@
-#include "game.h"
+#include "Game.h"
 
 void Game::handleEvent(SDL_Event &e, bool &quit, float deltaSeconds)
 {
