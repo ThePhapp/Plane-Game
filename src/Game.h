@@ -52,6 +52,8 @@ private:
     void renderMainMenu();
     void loadExplosion();
     bool showLevelMenu(bool &quit);
+    bool showPlaneSelectMenu(bool &quit);
+    void applyPlaneSettings();
     void applyLevelSettings();
     void renderBullets();
     
@@ -139,6 +141,19 @@ private:
     SDL_Rect backToMenuButtonRect;
     TTF_Font *font1 = nullptr;
     TTF_Font *menuFont = nullptr;
+
+    struct PlaneModelInfo {
+        const char* name;
+        const char* desc;
+        const char* imagePath;
+        float speedMult;
+        int bonusHealth;
+        const char* perkText;
+    };
+    static const std::vector<PlaneModelInfo>& getPlaneModels();
+    std::vector<SDL_Texture*> planeTextures;
+    int selectedPlane = 0;
+    float planeSpeedMultiplier = 1.0f;
 
     std::array<SDL_Texture*, 4> obstacleTextures{};
     std::array<SDL_Texture*, 5> powerUpTextures{};

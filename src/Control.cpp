@@ -32,7 +32,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit, float deltaSeconds)
         quit = true;
     }
 
-    const int moveDistance = static_cast<int>(7 * SCREEN_FPS * deltaSeconds);
+    const int moveDistance = static_cast<int>(7 * SCREEN_FPS * deltaSeconds * planeSpeedMultiplier);
 
     if (currentKeyStates[SDL_SCANCODE_UP])
     {

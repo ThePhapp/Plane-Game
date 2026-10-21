@@ -20,7 +20,15 @@ SDL_Texture *Game::loadTexture(const std::string &path)
 
 void Game::loadAssets()
 {
-    gSquareTexture = loadTexture("image/Player.png");
+    const auto& models = getPlaneModels();
+    for (const auto& m : models)
+    {
+        SDL_Texture* tex = loadTexture(m.imagePath);
+        if (!tex)
+            tex = loadTexture("image/Player.png");
+        planeTextures.push_back(tex);
+    }
+    applyPlaneSettings();
     gBulletTexture = loadTexture("image/bullet.png");
     if (gSquareTexture == nullptr || gBulletTexture == nullptr)
     {

@@ -12,6 +12,7 @@ struct GameData
     int level = 1;
     int weaponLevel = 1;
     bool achievements[10]{}; // 10 achievements
+    int selectedPlane = 0;
 };
 
 class SaveGame

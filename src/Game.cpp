@@ -117,6 +117,11 @@ void Game::run()
 
         if (!quit)
         {
+            showPlaneSelectMenu(quit);
+        }
+
+        if (!quit)
+        {
             showLevelMenu(quit);
         }
 
@@ -410,6 +415,305 @@ bool Game::showLevelMenu(bool &quit)
     return true;
 }
 
+const std::vector<Game::PlaneModelInfo>& Game::getPlaneModels()
+{
+    static const std::vector<PlaneModelInfo> models = {
+        {"F-22 RAPTOR", "Canh sat mau do tieu chuan - Toc do can bang", "image/Player.png", 1.0f, 0, "Toc do: 100% | Mau: 3"},
+        {"CYAN INTERCEPTOR", "Kiem ngu sieu toc - Luot cuc nhanh", "image/player_blue.png", 1.30f, 0, "Toc do: +30% | Mau: 3"},
+        {"EMERALD VENOM", "Dong co tiet kiem - Di chuyen linh hoat", "image/player_green.png", 1.15f, 0, "Toc do: +15% | Mau: 3"},
+        {"IMPERIAL GOLD", "Giap day ma vang - Bo sung 1 mau toi da", "image/player_gold.png", 0.90f, 1, "Toc do: -10% | Mau: 4 (+1 Mau)"},
+        {"VOID PHANTOM", "Tiem kich bong dem - Toc do cao cuc dinh", "image/player_purple.png", 1.25f, 0, "Toc do: +25% | Mau: 3"},
+        {"SHADOW STEALTH", "Phi co tang hinh titan - Cuc ky ben bi", "image/player_stealth.png", 0.95f, 1, "Toc do: -5%  | Mau: 4 (+1 Mau)"}
+    };
+    return models;
+}
+
+void Game::applyPlaneSettings()
+{
+    const auto& models = getPlaneModels();
+    if (selectedPlane >= 0 && selectedPlane < static_cast<int>(models.size()))
+    {
+        if (selectedPlane < static_cast<int>(planeTextures.size()) && planeTextures[selectedPlane] != nullptr)
+        {
+            gSquareTexture = planeTextures[selectedPlane];
+        }
+        planeSpeedMultiplier = models[selectedPlane].speedMult;
+        maxHealth = 3 + models[selectedPlane].bonusHealth;
+        currentHealth = maxHealth;
+    }
+}
+
+bool Game::showPlaneSelectMenu(bool &quit)
+{
+    bool choosing = true;
+    SDL_Event e;
+    TTF_Font* fontTitle = TTF_OpenFont("font/2.ttf", 36);
+    TTF_Font* fontCard = TTF_OpenFont("font/1.ttf", 20);
+    TTF_Font* fontDesc = TTF_OpenFont("font/1.ttf", 16);
+    TTF_Font* fontBtn = TTF_OpenFont("font/2.ttf", 26);
+
+    if (!fontTitle) fontTitle = font1;
+    if (!fontCard) fontCard = font1;
+    if (!fontDesc) fontDesc = font1;
+    if (!fontBtn) fontBtn = font1;
+
+    const auto& models = getPlaneModels();
+    const int numPlanes = static_cast<int>(models.size());
+
+    // Layout: 2 rows of 3 columns
+    const int cardW = 320;
+    const int cardH = 220;
+    const int startX = (SCREEN_WIDTH - (3 * cardW + 2 * 30)) / 2;
+    const int startY = 160;
+    const int gapX = 30;
+    const int gapY = 30;
+
+    SDL_Rect confirmBtn = {SCREEN_WIDTH / 2 - 140, SCREEN_HEIGHT - 120, 280, 60};
+
+    while (choosing)
+    {
+        int mx, my;
+        SDL_GetMouseState(&mx, &my);
+
+        while (SDL_PollEvent(&e))
+        {
+            if (e.type == SDL_QUIT)
+            {
+                quit = true;
+                choosing = false;
+            }
+            else if (e.type == SDL_KEYDOWN)
+            {
+                if (e.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    choosing = false;
+                }
+                else if (e.key.keysym.sym == SDLK_LEFT)
+                {
+                    selectedPlane = (selectedPlane - 1 + numPlanes) % numPlanes;
+                }
+                else if (e.key.keysym.sym == SDLK_RIGHT)
+                {
+                    selectedPlane = (selectedPlane + 1) % numPlanes;
+                }
+                else if (e.key.keysym.sym == SDLK_UP)
+                {
+                    if (selectedPlane >= 3) selectedPlane -= 3;
+                }
+                else if (e.key.keysym.sym == SDLK_DOWN)
+                {
+                    if (selectedPlane < 3) selectedPlane += 3;
+                }
+                else if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE)
+                {
+                    choosing = false;
+                }
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                const SDL_Point clickPoint = {e.button.x, e.button.y};
+                for (int i = 0; i < numPlanes; ++i)
+                {
+                    int r = i / 3;
+                    int c = i % 3;
+                    SDL_Rect cardRect = {startX + c * (cardW + gapX), startY + r * (cardH + gapY), cardW, cardH};
+                    if (SDL_PointInRect(&clickPoint, &cardRect))
+                    {
+                        selectedPlane = i;
+                    }
+                }
+                if (SDL_PointInRect(&clickPoint, &confirmBtn))
+                {
+                    choosing = false;
+                }
+            }
+        }
+
+        // Background
+        SDL_SetRenderDrawColor(gRenderer, 20, 24, 38, 255);
+        SDL_RenderClear(gRenderer);
+
+        // Header Title
+        SDL_Color goldColor = {255, 215, 0, 255};
+        SDL_Color whiteColor = {240, 240, 240, 255};
+        SDL_Color cyanColor = {0, 220, 255, 255};
+
+        if (fontTitle)
+        {
+            SDL_Surface* titleSurf = TTF_RenderUTF8_Blended(fontTitle, "SELECT YOUR FIGHTER JET", goldColor);
+            if (titleSurf)
+            {
+                SDL_Texture* titleTex = SDL_CreateTextureFromSurface(gRenderer, titleSurf);
+                int tw = 0, th = 0;
+                SDL_QueryTexture(titleTex, NULL, NULL, &tw, &th);
+                SDL_Rect titleRect = {SCREEN_WIDTH / 2 - tw / 2, 60, tw, th};
+                SDL_RenderCopy(gRenderer, titleTex, NULL, &titleRect);
+                SDL_DestroyTexture(titleTex);
+                SDL_FreeSurface(titleSurf);
+            }
+        }
+
+        // Subtitle hint
+        if (fontDesc)
+        {
+            SDL_Surface* subSurf = TTF_RenderUTF8_Blended(fontDesc, "Click to choose your plane, or use Arrow Keys + Enter", whiteColor);
+            if (subSurf)
+            {
+                SDL_Texture* subTex = SDL_CreateTextureFromSurface(gRenderer, subSurf);
+                int tw = 0, th = 0;
+                SDL_QueryTexture(subTex, NULL, NULL, &tw, &th);
+                SDL_Rect subRect = {SCREEN_WIDTH / 2 - tw / 2, 110, tw, th};
+                SDL_RenderCopy(gRenderer, subTex, NULL, &subRect);
+                SDL_DestroyTexture(subTex);
+                SDL_FreeSurface(subSurf);
+            }
+        }
+
+        // Render Plane Cards
+        for (int i = 0; i < numPlanes; ++i)
+        {
+            int r = i / 3;
+            int c = i % 3;
+            SDL_Rect cardRect = {startX + c * (cardW + gapX), startY + r * (cardH + gapY), cardW, cardH};
+            bool isSelected = (selectedPlane == i);
+            SDL_Point mousePoint = {mx, my};
+            bool isHover = SDL_PointInRect(&mousePoint, &cardRect);
+
+            // Card body background
+            if (isSelected)
+            {
+                SDL_SetRenderDrawColor(gRenderer, 45, 60, 95, 255);
+            }
+            else if (isHover)
+            {
+                SDL_SetRenderDrawColor(gRenderer, 35, 42, 65, 255);
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(gRenderer, 28, 32, 48, 255);
+            }
+            SDL_RenderFillRect(gRenderer, &cardRect);
+
+            // Card Border
+            if (isSelected)
+            {
+                SDL_SetRenderDrawColor(gRenderer, 255, 215, 0, 255); // Gold border
+                SDL_RenderDrawRect(gRenderer, &cardRect);
+                SDL_Rect innerBorder = {cardRect.x + 1, cardRect.y + 1, cardRect.w - 2, cardRect.h - 2};
+                SDL_RenderDrawRect(gRenderer, &innerBorder);
+            }
+            else if (isHover)
+            {
+                SDL_SetRenderDrawColor(gRenderer, 0, 180, 255, 255);
+                SDL_RenderDrawRect(gRenderer, &cardRect);
+            }
+            else
+            {
+                SDL_SetRenderDrawColor(gRenderer, 70, 75, 95, 255);
+                SDL_RenderDrawRect(gRenderer, &cardRect);
+            }
+
+            // Plane Preview Sprite
+            if (i < static_cast<int>(planeTextures.size()) && planeTextures[i])
+            {
+                SDL_Rect spriteRect = {cardRect.x + cardRect.w / 2 - 32, cardRect.y + 18, 64, 60};
+                SDL_RenderCopy(gRenderer, planeTextures[i], NULL, &spriteRect);
+            }
+
+            // Plane Name
+            if (fontCard)
+            {
+                SDL_Color nameColor = isSelected ? goldColor : whiteColor;
+                SDL_Surface* nameSurf = TTF_RenderUTF8_Blended(fontCard, models[i].name, nameColor);
+                if (nameSurf)
+                {
+                    SDL_Texture* nameTex = SDL_CreateTextureFromSurface(gRenderer, nameSurf);
+                    int tw = 0, th = 0;
+                    SDL_QueryTexture(nameTex, NULL, NULL, &tw, &th);
+                    SDL_Rect nameRect = {cardRect.x + (cardRect.w - tw) / 2, cardRect.y + 90, tw, th};
+                    SDL_RenderCopy(gRenderer, nameTex, NULL, &nameRect);
+                    SDL_DestroyTexture(nameTex);
+                    SDL_FreeSurface(nameSurf);
+                }
+            }
+
+            // Plane Stats / Perks
+            if (fontDesc)
+            {
+                SDL_Surface* perkSurf = TTF_RenderUTF8_Blended(fontDesc, models[i].perkText, cyanColor);
+                if (perkSurf)
+                {
+                    SDL_Texture* perkTex = SDL_CreateTextureFromSurface(gRenderer, perkSurf);
+                    int tw = 0, th = 0;
+                    SDL_QueryTexture(perkTex, NULL, NULL, &tw, &th);
+                    SDL_Rect perkRect = {cardRect.x + (cardRect.w - tw) / 2, cardRect.y + 130, tw, th};
+                    SDL_RenderCopy(gRenderer, perkTex, NULL, &perkRect);
+                    SDL_DestroyTexture(perkTex);
+                    SDL_FreeSurface(perkSurf);
+                }
+
+                // Short description
+                SDL_Color grayColor = {180, 190, 205, 255};
+                SDL_Surface* descSurf = TTF_RenderUTF8_Blended(fontDesc, models[i].desc, grayColor);
+                if (descSurf)
+                {
+                    SDL_Texture* descTex = SDL_CreateTextureFromSurface(gRenderer, descSurf);
+                    int tw = 0, th = 0;
+                    SDL_QueryTexture(descTex, NULL, NULL, &tw, &th);
+                    SDL_Rect descRect = {cardRect.x + (cardRect.w - tw) / 2, cardRect.y + 165, tw, th};
+                    SDL_RenderCopy(gRenderer, descTex, NULL, &descRect);
+                    SDL_DestroyTexture(descTex);
+                    SDL_FreeSurface(descSurf);
+                }
+            }
+        }
+
+        // Confirm Button
+        SDL_Point mousePoint = {mx, my};
+        bool hoverConfirm = SDL_PointInRect(&mousePoint, &confirmBtn);
+        if (hoverConfirm)
+        {
+            SDL_SetRenderDrawColor(gRenderer, 0, 200, 100, 255);
+        }
+        else
+        {
+            SDL_SetRenderDrawColor(gRenderer, 0, 150, 75, 255);
+        }
+        SDL_RenderFillRect(gRenderer, &confirmBtn);
+        SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
+        SDL_RenderDrawRect(gRenderer, &confirmBtn);
+
+        if (fontBtn)
+        {
+            SDL_Surface* btnSurf = TTF_RenderUTF8_Blended(fontBtn, "READY TO FLY", whiteColor);
+            if (btnSurf)
+            {
+                SDL_Texture* btnTex = SDL_CreateTextureFromSurface(gRenderer, btnSurf);
+                int tw = 0, th = 0;
+                SDL_QueryTexture(btnTex, NULL, NULL, &tw, &th);
+                SDL_Rect btnRect = {confirmBtn.x + (confirmBtn.w - tw) / 2, confirmBtn.y + (confirmBtn.h - th) / 2, tw, th};
+                SDL_RenderCopy(gRenderer, btnTex, NULL, &btnRect);
+                SDL_DestroyTexture(btnTex);
+                SDL_FreeSurface(btnSurf);
+            }
+        }
+
+        SDL_RenderPresent(gRenderer);
+        SDL_Delay(16);
+    }
+
+    if (fontTitle && fontTitle != font1) TTF_CloseFont(fontTitle);
+    if (fontCard && fontCard != font1) TTF_CloseFont(fontCard);
+    if (fontDesc && fontDesc != font1) TTF_CloseFont(fontDesc);
+    if (fontBtn && fontBtn != font1) TTF_CloseFont(fontBtn);
+
+    if (quit) return false;
+
+    applyPlaneSettings();
+    saveGame();
+    return true;
+}
+
 void Game::applyLevelSettings()
 {
     switch (level)
@@ -473,7 +777,15 @@ void Game::closeSDL()
         }
     }
 
-    SDL_DestroyTexture(gSquareTexture);
+    for (SDL_Texture*& tex : planeTextures)
+    {
+        if (tex)
+        {
+            SDL_DestroyTexture(tex);
+            tex = nullptr;
+        }
+    }
+    gSquareTexture = nullptr;
     SDL_DestroyTexture(gBackgroundTexture);
     SDL_DestroyTexture(gBulletTexture);
     SDL_DestroyTexture(textTexture);
@@ -746,6 +1058,7 @@ void Game::saveGame()
     data.coins = points;
     data.level = level;
     data.weaponLevel = playerWeapon.getLevel();
+    data.selectedPlane = selectedPlane;
     
     // Save achievements
     for (int i = 0; i < 10; i++)
@@ -767,6 +1080,8 @@ void Game::loadGame()
     {
         highestPoint = std::max(0, data.highScore);
         level = std::clamp(data.level, 1, 3);
+        selectedPlane = std::clamp(data.selectedPlane, 0, 5);
+        applyPlaneSettings();
         
         // Load weapon level
         const int savedWeaponLevel = std::clamp(data.weaponLevel, 1, 5);
