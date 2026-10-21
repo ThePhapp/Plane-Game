@@ -10,6 +10,12 @@
 #include "BulletObject/Bullet.h"
 #include "BossObject/BossObject.h"
 #include "ExplosionObject/ExplosionObject.h"
+#include "PowerUpObject/PowerUp.h"
+#include "WeaponObject/Weapon.h"
+#include "SaveSystem/SaveGame.h"
+#include "AchievementSystem/Achievement.h"
+#include "LeaderboardSystem/Leaderboard.h"
+#include "ObstacleObject/Obstacle.h"
 
 const int SCREEN_WIDTH = 1300;
 const int SCREEN_HEIGHT = 900;
@@ -55,6 +61,26 @@ private:
     void updateFPS();
     void showLevelMenu();
     void applyLevelSettings();
+    void renderBullets();
+    
+    // Power-up functions
+    void spawnPowerUp();
+    void updatePowerUps();
+    void handlePowerUpCollision();
+    void applyPowerUpEffect(PowerUpType type);
+    void renderPowerUps();
+    
+    // Obstacle functions
+    void spawnObstacleNew();
+    void updateObstacles();
+    void handleObstacleCollision();
+    void renderObstacles();
+    
+    // System functions
+    void saveGame();
+    void loadGame();
+    void showLeaderboard();
+    void showAchievements();
 
 private:
     int backgroundPosX;
@@ -75,6 +101,30 @@ private:
 
     Boss boss;
     Explosion exp;
+    
+    // New systems
+    std::vector<PowerUp> powerUps;
+    std::vector<Obstacle> obstacles;
+    Weapon playerWeapon;
+    SaveGame saveSystem;
+    AchievementSystem achievements;
+    Leaderboard leaderboard;
+    
+    // Power-up effects
+    bool hasShield;
+    bool hasRapidFire;
+    bool hasDoubleShot;
+    Uint32 shieldEndTime;
+    Uint32 rapidFireEndTime;
+    Uint32 doubleShotEndTime;
+    Uint32 lastFireTime;
+    
+    // Game stats
+    int enemiesKilled;
+    int powerUpsCollected;
+    int shotsFired;
+    int shotsHit;
+    Uint32 levelStartTime;
 
     SDL_Window *gWindow = nullptr;
     SDL_Renderer *gRenderer = nullptr;

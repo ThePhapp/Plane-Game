@@ -8,6 +8,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
+#include <algorithm>
 
 std::vector<Bullet> Game::bullets;
 
@@ -30,6 +31,25 @@ Game::Game()
     this->points = 0;
     this->miss = 0;
     currentHealth = maxHealth;
+    
+    // Initialize new systems
+    hasShield = false;
+    hasRapidFire = false;
+    hasDoubleShot = false;
+    shieldEndTime = 0;
+    rapidFireEndTime = 0;
+    doubleShotEndTime = 0;
+    lastFireTime = 0;
+    enemiesKilled = 0;
+    powerUpsCollected = 0;
+    shotsFired = 0;
+    shotsHit = 0;
+    levelStartTime = SDL_GetTicks();
+    
+    // Initialize systems
+    achievements.initialize();
+    leaderboard.loadFromFile("leaderboard.dat");
+    loadGame();
 }
 
 Game::~Game()
@@ -62,19 +82,42 @@ void Game::run()
         while (!gameOver && !quit)
         {
             handleEvent(e, quit);
+            
+            // Update old obstacle (backward compatibility)
             updateObstacle();
             handleBulletCollision();
+            
+            // Update new systems
+            updateBullets();
+            updateObstacles();
+            updatePowerUps();
+            handleObstacleCollision();
+            handlePowerUpCollision();
             handleBossBulletCollision();
+            
+            // Spawn new enemies periodically
+            if (obstacles.size() < 5 && rand() % 100 < 3)
+                spawnObstacleNew();
+            
             render();
 
             if (isCollision() || miss == 4)
             {
-                currentHealth -= 1;
-                miss = 0;
-                isObstacleActive = false;
-                if (Mix_PlayChannel(-1, gCollision, 0) == -1) // SoundVaCham
+                if (!hasShield)
                 {
-                    std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+                    currentHealth -= 1;
+                    miss = 0;
+                    isObstacleActive = false;
+                    if (Mix_PlayChannel(-1, gCollision, 0) == -1)
+                    {
+                        std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+                    }
+                }
+                else
+                {
+                    std::cout << "Shield blocked damage!" << std::endl;
+                    miss = 0;
+                    isObstacleActive = false;
                 }
             }
 
@@ -83,9 +126,14 @@ void Game::run()
                 gameOver = true;
                 renderGameOver();
                 isObstacleActive = false;
+                
+                // Save score to leaderboard
+                ScoreEntry entry("Player", points, level);
+                leaderboard.addScore(entry);
+                saveGame();
             }
 
-            if (!boss.isActive() && points > 1000)
+            if (!boss.isActive() && points >= 1000)
             {
                 Uint32 currentTime = SDL_GetTicks();
                 if (currentTime - boss.getExplosionStartTime() >= 410)
@@ -93,6 +141,14 @@ void Game::run()
                     gameOver = true;
                     renderWinMenu();
                     isObstacleActive = false;
+                    
+                    // Achievement for beating boss
+                    achievements.unlock(ACH_BOSS_SLAYER);
+                    
+                    // Save score
+                    ScoreEntry entry("Player", points, level);
+                    leaderboard.addScore(entry);
+                    saveGame();
                 }
             }
         }
@@ -159,12 +215,28 @@ void Game::render()
     SDL_RenderClear(gRenderer);
     renderBackground();
     updateFPS();
+    
+    // Render player
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
+    
+    // Render old obstacle (for backward compatibility)
     SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
+    
+    // Render new obstacles
+    renderObstacles();
+    
+    // Render power-ups
+    renderPowerUps();
+    
+    // Render UI
     renderPoints();
     renderHealth();
-    updateBullets();
-    if (!boss.isActive() && points == 1000)
+    
+    // Render bullets
+    renderBullets();
+    
+    // Boss logic
+    if (!boss.isActive() && points >= 1000)
     {
         boss.setActive(true);
     }
@@ -173,14 +245,16 @@ void Game::render()
     {
         boss.update();
         boss.render(gRenderer);
-        boss.handleBulletCollision(); // Xy ly va cham boss va bullet
+        boss.handleBulletCollision();
     }
 
     loadExplosion();
-
     boss.loadExplosionBoss(gRenderer);
+    
+    // Render achievement notifications
+    achievements.render(gRenderer, font1);
 
-    if (!Mix_Playing(-1)) // SoundBackground
+    if (!Mix_Playing(-1))
     {
         if (Mix_PlayChannel(-1, gSound, 0) == -1)
         {
@@ -281,19 +355,26 @@ void Game::showLevelMenu()
 
 void Game::applyLevelSettings()
 {
+    BossType bossType;
+    
     switch (level)
     {
-    case 1: // Easy
+    case 1: // Easy - Normal Boss
+        boss.setType(BOSS_NORMAL);
         boss.setHealth(80);
         boss.setSpeed(3);
         boss.setBulletSpeed(7);
         break;
-    case 2: // Medium
+        
+    case 2: // Medium - Fast Boss
+        boss.setType(BOSS_FAST);
         boss.setHealth(120);
         boss.setSpeed(5);
         boss.setBulletSpeed(10);
         break;
-    case 3: // Hard
+        
+    case 3: // Hard - Ultimate Boss
+        boss.setType(BOSS_ULTIMATE);
         boss.setHealth(180);
         boss.setSpeed(8);
         boss.setBulletSpeed(15);
@@ -327,4 +408,330 @@ void Game::closeSDL()
     SDL_Quit();
     TTF_Quit();
     Mix_Quit();
+}
+
+// ==================== POWER-UP FUNCTIONS ====================
+
+void Game::spawnPowerUp()
+{
+    // Random spawn (10% chance)
+    if (rand() % 100 < 10)
+    {
+        int x = SCREEN_WIDTH;
+        int y = rand() % (SCREEN_HEIGHT - 100) + 50;
+        PowerUpType type = static_cast<PowerUpType>(rand() % 5);
+        
+        PowerUp powerUp(x, y, type);
+        
+        // Load texture based on type
+        const char* texturePath;
+        switch(type)
+        {
+            case POWERUP_SHIELD:
+                texturePath = "image/powerup_shield.png";
+                break;
+            case POWERUP_RAPID_FIRE:
+                texturePath = "image/powerup_rapid.png";
+                break;
+            case POWERUP_DOUBLE_SHOT:
+                texturePath = "image/powerup_double.png";
+                break;
+            case POWERUP_HEALTH:
+                texturePath = "image/powerup_health.png";
+                break;
+            case POWERUP_BOMB:
+                texturePath = "image/powerup_bomb.png";
+                break;
+        }
+        
+        powerUp.loadTexture(gRenderer, texturePath);
+        powerUps.push_back(powerUp);
+    }
+}
+
+void Game::updatePowerUps()
+{
+    for (auto& powerUp : powerUps)
+    {
+        if (powerUp.isActive())
+            powerUp.update();
+    }
+    
+    // Remove inactive power-ups
+    powerUps.erase(
+        std::remove_if(powerUps.begin(), powerUps.end(),
+                      [](const PowerUp& p) { return !p.isActive(); }),
+        powerUps.end());
+    
+    // Check power-up timers
+    Uint32 currentTime = SDL_GetTicks();
+    if (hasShield && currentTime > shieldEndTime)
+        hasShield = false;
+    if (hasRapidFire && currentTime > rapidFireEndTime)
+        hasRapidFire = false;
+    if (hasDoubleShot && currentTime > doubleShotEndTime)
+        hasDoubleShot = false;
+}
+
+void Game::handlePowerUpCollision()
+{
+    for (auto& powerUp : powerUps)
+    {
+        if (powerUp.isActive())
+        {
+            SDL_Rect powerUpRect = powerUp.getRect();
+            if (SDL_HasIntersection(&gSquareRect, &powerUpRect))
+            {
+                applyPowerUpEffect(powerUp.getType());
+                powerUp.setActive(false);
+                powerUpsCollected++;
+                achievements.updateProgress(ACH_COLLECTOR, 1);
+            }
+        }
+    }
+}
+
+void Game::applyPowerUpEffect(PowerUpType type)
+{
+    Uint32 currentTime = SDL_GetTicks();
+    
+    switch(type)
+    {
+        case POWERUP_SHIELD:
+            hasShield = true;
+            shieldEndTime = currentTime + 8000;
+            std::cout << "Shield activated!" << std::endl;
+            break;
+            
+        case POWERUP_RAPID_FIRE:
+            hasRapidFire = true;
+            rapidFireEndTime = currentTime + 10000;
+            std::cout << "Rapid Fire activated!" << std::endl;
+            break;
+            
+        case POWERUP_DOUBLE_SHOT:
+            hasDoubleShot = true;
+            doubleShotEndTime = currentTime + 12000;
+            std::cout << "Double Shot activated!" << std::endl;
+            break;
+            
+        case POWERUP_HEALTH:
+            if (currentHealth < maxHealth)
+            {
+                currentHealth++;
+                std::cout << "Health restored!" << std::endl;
+            }
+            break;
+            
+        case POWERUP_BOMB:
+            // Destroy all enemies on screen
+            for (auto& obstacle : obstacles)
+            {
+                if (obstacle.isActive())
+                {
+                    obstacle.setActive(false);
+                    points += obstacle.getPoints();
+                    enemiesKilled++;
+                }
+            }
+            std::cout << "Bomb activated! All enemies destroyed!" << std::endl;
+            break;
+    }
+}
+
+void Game::renderPowerUps()
+{
+    for (auto& powerUp : powerUps)
+    {
+        if (powerUp.isActive())
+            powerUp.render(gRenderer);
+    }
+}
+
+// ==================== OBSTACLE FUNCTIONS ====================
+
+void Game::spawnObstacleNew()
+{
+    // Random enemy type based on level
+    EnemyType type;
+    int chance = rand() % 100;
+    
+    if (level == 1)
+    {
+        type = (chance < 80) ? ENEMY_BASIC : ENEMY_FAST;
+    }
+    else if (level == 2)
+    {
+        if (chance < 50) type = ENEMY_BASIC;
+        else if (chance < 80) type = ENEMY_FAST;
+        else type = ENEMY_TANK;
+    }
+    else // level 3
+    {
+        if (chance < 30) type = ENEMY_BASIC;
+        else if (chance < 60) type = ENEMY_FAST;
+        else if (chance < 85) type = ENEMY_TANK;
+        else type = ENEMY_KAMIKAZE;
+    }
+    
+    int x = SCREEN_WIDTH;
+    int y = rand() % (SCREEN_HEIGHT - 100) + 50;
+    
+    Obstacle obstacle(x, y, type);
+    
+    // Load texture based on type
+    const char* texturePath;
+    switch(type)
+    {
+        case ENEMY_BASIC:
+            texturePath = "image/obstacle.png";
+            break;
+        case ENEMY_FAST:
+            texturePath = "image/enemy_fast.png";
+            break;
+        case ENEMY_TANK:
+            texturePath = "image/enemy_tank.png";
+            break;
+        case ENEMY_KAMIKAZE:
+            texturePath = "image/enemy_kamikaze.png";
+            break;
+    }
+    
+    obstacle.loadTexture(gRenderer, texturePath);
+    obstacles.push_back(obstacle);
+}
+
+void Game::updateObstacles()
+{
+    for (auto& obstacle : obstacles)
+    {
+        if (obstacle.isActive())
+            obstacle.update(gSquareRect);
+    }
+    
+    // Remove inactive obstacles
+    obstacles.erase(
+        std::remove_if(obstacles.begin(), obstacles.end(),
+                      [](const Obstacle& o) { return !o.isActive(); }),
+        obstacles.end());
+}
+
+void Game::handleObstacleCollision()
+{
+    for (auto& obstacle : obstacles)
+    {
+        if (!obstacle.isActive())
+            continue;
+            
+        // Check bullet collision
+        for (auto& bullet : bullets)
+        {
+            SDL_Rect obstacleRect = obstacle.getRect();
+            if (bullet.active && SDL_HasIntersection(&bullet.rect, &obstacleRect))
+            {
+                bullet.active = false;
+                shotsHit++;
+                
+                if (obstacle.takeDamage(playerWeapon.getDamage()))
+                {
+                    // Enemy destroyed
+                    obstacle.setActive(false);
+                    points += obstacle.getPoints();
+                    enemiesKilled++;
+                    
+                    // Check achievements
+                    if (enemiesKilled == 1)
+                        achievements.unlock(ACH_FIRST_BLOOD);
+                    if (enemiesKilled >= 100)
+                        achievements.unlock(ACH_DESTROYER);
+                    
+                    // Chance to spawn power-up
+                    if (rand() % 100 < 15)
+                        spawnPowerUp();
+                }
+            }
+        }
+        
+        // Check player collision
+        SDL_Rect obstacleRect = obstacle.getRect();
+        if (SDL_HasIntersection(&gSquareRect, &obstacleRect))
+        {
+            if (!hasShield)
+            {
+                currentHealth--;
+                obstacle.setActive(false);
+                
+                if (Mix_PlayChannel(-1, gCollision, 0) == -1)
+                    std::cout << "Failed to play collision sound!" << std::endl;
+            }
+            else
+            {
+                // Shield blocks damage
+                obstacle.setActive(false);
+                std::cout << "Shield blocked damage!" << std::endl;
+            }
+        }
+    }
+}
+
+void Game::renderObstacles()
+{
+    for (auto& obstacle : obstacles)
+    {
+        if (obstacle.isActive())
+            obstacle.render(gRenderer);
+    }
+}
+
+// ==================== SAVE/LOAD FUNCTIONS ====================
+
+void Game::saveGame()
+{
+    GameData data;
+    data.highScore = highestPoint;
+    data.coins = points;
+    data.level = level;
+    data.weaponLevel = playerWeapon.getLevel();
+    
+    // Save achievements
+    for (int i = 0; i < 10; i++)
+    {
+        if (i < achievements.getAchievements().size())
+            data.achievements[i] = achievements.getAchievements()[i].unlocked;
+        else
+            data.achievements[i] = false;
+    }
+    
+    saveSystem.saveProgress("savegame.dat", data);
+    leaderboard.saveToFile("leaderboard.dat");
+}
+
+void Game::loadGame()
+{
+    GameData data;
+    if (saveSystem.loadProgress("savegame.dat", data))
+    {
+        highestPoint = data.highScore;
+        
+        // Load weapon level
+        for (int i = 1; i < data.weaponLevel; i++)
+            playerWeapon.upgrade();
+        
+        // Load achievements
+        for (int i = 0; i < 10 && i < achievements.getAchievements().size(); i++)
+        {
+            if (data.achievements[i])
+                achievements.unlock(static_cast<AchievementID>(i));
+        }
+    }
+}
+
+void Game::showLeaderboard()
+{
+    leaderboard.render(gRenderer, font1);
+}
+
+void Game::showAchievements()
+{
+    achievements.render(gRenderer, font1);
 }

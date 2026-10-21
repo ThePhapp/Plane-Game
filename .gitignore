@@ -1,0 +1,21 @@
+# Bỏ file thực thi và object
+*.exe
+*.o
+*.obj
+*.out
+
+# Bỏ thư viện Windows
+*.dll
+
+# Bỏ các file tạm của editor/IDE
+.vscode/
+*.log
+
+# Nếu có build directory
+/build/
+bin/
+dist/
+
+# File hệ thống
+.DS_Store
+Thumbs.db

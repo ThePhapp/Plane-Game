@@ -11,7 +11,12 @@ SRC = \
     src/BulletObject/Bullet.cpp \
     src/ObstacleObject/Obstacle.cpp \
     src/ExplosionObject/ExplosionObject.cpp \
-    src/BossObject/BossObject.cpp
+    src/BossObject/BossObject.cpp \
+    src/PowerUpObject/PowerUp.cpp \
+    src/WeaponObject/Weapon.cpp \
+    src/SaveSystem/SaveGame.cpp \
+    src/AchievementSystem/Achievement.cpp \
+    src/LeaderboardSystem/Leaderboard.cpp
 
 OBJ = $(SRC:.cpp=.o)
 TARGET = PlaneGame.exe
@@ -22,6 +27,6 @@ $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 clean:
-	del /Q $(TARGET) src\*.o src\BulletObject\*.o src\ObstacleObject\*.o src\ExplosionObject\*.o src\BossObject\*.o
+	del /Q $(TARGET) src\*.o src\BulletObject\*.o src\ObstacleObject\*.o src\ExplosionObject\*.o src\BossObject\*.o src\PowerUpObject\*.o src\WeaponObject\*.o src\SaveSystem\*.o src\AchievementSystem\*.o src\LeaderboardSystem\*.o
 
 #mingw32-make      

@@ -7,9 +7,51 @@ std::vector<Bullet> Boss::bulletBoss;
 
 Boss::Boss()
     : bossTexture(nullptr), bulletTexture(nullptr), active(false), speed(5), health(100),
-      bulletSpeed(10), explosionStartTime(0), lastShootTime(0)
+      maxHealth(100), bulletSpeed(10), type(BOSS_NORMAL), phase(1), 
+      explosionStartTime(0), lastShootTime(0)
 {
     rect = {SCREEN_WIDTH - 150, SCREEN_HEIGHT / 2 - 50, 150, 200};
+}
+
+Boss::Boss(BossType bType)
+    : bossTexture(nullptr), bulletTexture(nullptr), active(false), type(bType), 
+      phase(1), explosionStartTime(0), lastShootTime(0)
+{
+    // Set properties based on boss type
+    switch(type)
+    {
+        case BOSS_NORMAL:
+            speed = 5;
+            health = 100;
+            maxHealth = 100;
+            bulletSpeed = 10;
+            rect = {SCREEN_WIDTH - 150, SCREEN_HEIGHT / 2 - 50, 150, 200};
+            break;
+            
+        case BOSS_FAST:
+            speed = 8;
+            health = 80;
+            maxHealth = 80;
+            bulletSpeed = 15;
+            rect = {SCREEN_WIDTH - 130, SCREEN_HEIGHT / 2 - 40, 130, 160};
+            break;
+            
+        case BOSS_TANK:
+            speed = 3;
+            health = 200;
+            maxHealth = 200;
+            bulletSpeed = 8;
+            rect = {SCREEN_WIDTH - 180, SCREEN_HEIGHT / 2 - 60, 180, 240};
+            break;
+            
+        case BOSS_ULTIMATE:
+            speed = 6;
+            health = 300;
+            maxHealth = 300;
+            bulletSpeed = 12;
+            rect = {SCREEN_WIDTH - 200, SCREEN_HEIGHT / 2 - 70, 200, 280};
+            break;
+    }
 }
 
 Boss::~Boss()
@@ -55,11 +97,24 @@ void Boss::render(SDL_Renderer *renderer)
     SDL_RenderCopy(renderer, bossTexture, nullptr, &rect);
 
     // Draw health bar (smooth)
-    float healthPercent = std::max(0.0f, std::min(1.0f, health / 100.0f));
+    float healthPercent = std::max(0.0f, std::min(1.0f, (float)health / maxHealth));
     int healthBarWidth = static_cast<int>(rect.w * healthPercent);
     SDL_Rect healthBar = {rect.x, rect.y - 15, healthBarWidth, 8};
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    
+    // Color based on health
+    if (healthPercent > 0.5f)
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green
+    else if (healthPercent > 0.25f)
+        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow
+    else
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red
+        
     SDL_RenderFillRect(renderer, &healthBar);
+    
+    // Draw health bar border
+    SDL_Rect healthBarBorder = {rect.x, rect.y - 15, rect.w, 8};
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderDrawRect(renderer, &healthBarBorder);
 
     // Draw boss bullets
     for (const auto &bullet : bulletBoss)
@@ -80,6 +135,19 @@ void Boss::render(SDL_Renderer *renderer)
 void Boss::update()
 {
     if (!active) return;
+    
+    // Check phase change
+    float healthPercent = (float)health / maxHealth;
+    if (healthPercent <= 0.5f && phase == 1)
+    {
+        phase = 2;
+        std::cout << "Boss entered Phase 2!" << std::endl;
+        // Increase difficulty in phase 2
+        if (type == BOSS_ULTIMATE)
+        {
+            bulletSpeed = (int)(bulletSpeed * 1.5);
+        }
+    }
 
     // Move boss vertically
     rect.y += speed;
@@ -102,11 +170,13 @@ void Boss::update()
                        [](const Bullet &b) { return !b.active; }),
         bulletBoss.end());
 
-    // Shoot bullet every 500ms
+    // Shoot based on type and phase
     Uint32 now = SDL_GetTicks();
-    if (now - lastShootTime > 500)
+    int shootInterval = (phase == 2) ? 300 : 500; // Faster in phase 2
+    
+    if (now - lastShootTime > shootInterval)
     {
-        shootBullet();
+        shootPattern();
         lastShootTime = now;
     }
 
@@ -160,4 +230,67 @@ void Boss::shootBullet()
     SDL_Rect bulletRect = {rect.x - 30, rect.y + rect.h / 2 - 25, 50, 50};
     Bullet newBullet(bulletRect, true);
     bulletBoss.push_back(newBullet);
+}
+
+void Boss::shootPattern()
+{
+    switch(type)
+    {
+        case BOSS_NORMAL:
+            // Simple straight shot
+            shootBullet();
+            break;
+            
+        case BOSS_FAST:
+            // Triple shot
+            if (phase == 2)
+            {
+                // 3 bullets spread
+                for (int i = -1; i <= 1; i++)
+                {
+                    SDL_Rect bulletRect = {rect.x - 30, rect.y + rect.h / 2 + (i * 40), 50, 50};
+                    Bullet newBullet(bulletRect, true);
+                    bulletBoss.push_back(newBullet);
+                }
+            }
+            else
+            {
+                shootBullet();
+            }
+            break;
+            
+        case BOSS_TANK:
+            {
+                // Burst fire (2 bullets)
+                shootBullet();
+                SDL_Rect bulletRect2 = {rect.x - 30, rect.y + rect.h / 2 + 30, 50, 50};
+                Bullet newBullet2(bulletRect2, true);
+                bulletBoss.push_back(newBullet2);
+                break;
+            }
+            
+        case BOSS_ULTIMATE:
+            // Complex pattern based on phase
+            if (phase == 2)
+            {
+                // 5-way spread
+                for (int i = -2; i <= 2; i++)
+                {
+                    SDL_Rect bulletRect = {rect.x - 30, rect.y + rect.h / 2 + (i * 30), 50, 50};
+                    Bullet newBullet(bulletRect, true);
+                    bulletBoss.push_back(newBullet);
+                }
+            }
+            else
+            {
+                // 3-way spread
+                for (int i = -1; i <= 1; i++)
+                {
+                    SDL_Rect bulletRect = {rect.x - 30, rect.y + rect.h / 2 + (i * 50), 50, 50};
+                    Bullet newBullet(bulletRect, true);
+                    bulletBoss.push_back(newBullet);
+                }
+            }
+            break;
+    }
 }
