@@ -219,8 +219,6 @@ void Boss::update(float deltaSeconds)
 
 }
 
-// ...existing code...
-
 bool Boss::handleBulletCollision()
 {
     for (auto &bullet : Game::bullets)
@@ -249,14 +247,6 @@ void Boss::startExplosion(SDL_Renderer* renderer)
         exp1.start(rect.x, rect.y);
         explosionStartTime = SDL_GetTicks();
     }
-}
-
-void Boss::loadExplosionBoss(SDL_Renderer *renderer)
-{
-    if (health <= 0)
-        startExplosion(renderer);
-    if (exp1.isExploding())
-        exp1.update();
 }
 
 void Boss::shootBullet()

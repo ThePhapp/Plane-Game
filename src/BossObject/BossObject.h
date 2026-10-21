@@ -48,7 +48,6 @@ public:
     void reset();
     void releaseResources();
     Uint32 getExplosionStartTime() const { return explosionStartTime; }
-    void loadExplosionBoss(SDL_Renderer *renderer);
 
     static std::vector<Bullet> &getBulletBoss() { return bulletBoss; }
 
