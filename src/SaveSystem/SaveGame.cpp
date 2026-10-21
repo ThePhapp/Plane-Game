@@ -1,11 +1,10 @@
 #include "SaveGame.h"
-#include <direct.h>
+#include <filesystem>
 
 SaveGame::SaveGame()
 {
-    gameData = {0, 0, 1, 1, {false}};
-    // Create save directory if not exists
-    _mkdir(SAVE_DIR.c_str());
+    gameData = {};
+    std::filesystem::create_directories(SAVE_DIR);
 }
 
 SaveGame::~SaveGame()
@@ -24,7 +23,11 @@ bool SaveGame::saveProgress(const std::string& filename, const GameData& data)
     }
     
     file.write(reinterpret_cast<const char*>(&data), sizeof(GameData));
-    file.close();
+    if (!file)
+    {
+        std::cout << "Failed to write save data to " << fullPath << std::endl;
+        return false;
+    }
     
     std::cout << "Game saved successfully to " << fullPath << std::endl;
     return true;
@@ -39,12 +42,17 @@ bool SaveGame::loadProgress(const std::string& filename, GameData& data)
     {
         std::cout << "No save file found at " << fullPath << std::endl;
         // Return default data
-        data = {0, 0, 1, 1, {false}};
+        data = {};
         return false;
     }
     
     file.read(reinterpret_cast<char*>(&data), sizeof(GameData));
-    file.close();
+    if (!file || file.gcount() != static_cast<std::streamsize>(sizeof(GameData)))
+    {
+        data = {};
+        std::cout << "Save file is invalid or incomplete: " << fullPath << std::endl;
+        return false;
+    }
     
     std::cout << "Game loaded successfully from " << fullPath << std::endl;
     return true;

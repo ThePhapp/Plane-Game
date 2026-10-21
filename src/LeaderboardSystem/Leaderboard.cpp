@@ -2,12 +2,13 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <direct.h>
+#include <filesystem>
+#include <limits>
 
 Leaderboard::Leaderboard()
     : maxEntries(10)
 {
-    _mkdir(SAVE_DIR.c_str());
+    std::filesystem::create_directories(SAVE_DIR);
 }
 
 Leaderboard::~Leaderboard()
@@ -68,23 +69,32 @@ void Leaderboard::loadFromFile(const std::string& filename)
     }
     
     topScores.clear();
-    int count;
-    file >> count;
-    file.ignore(); // Skip newline
+    int count = 0;
+    if (!(file >> count) || count < 0 || count > maxEntries)
+    {
+        std::cout << "Leaderboard file is invalid: " << fullPath << std::endl;
+        return;
+    }
+    file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     
     for (int i = 0; i < count; i++)
     {
         ScoreEntry entry;
-        std::getline(file, entry.playerName);
-        file >> entry.score;
-        file >> entry.level;
-        file >> entry.date;
-        file.ignore(); // Skip newline
+        if (!std::getline(file, entry.playerName) ||
+            !(file >> entry.score) ||
+            !(file >> entry.level) ||
+            !(file >> entry.date))
+        {
+            std::cout << "Leaderboard file is incomplete: " << fullPath << std::endl;
+            topScores.clear();
+            return;
+        }
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         
         topScores.push_back(entry);
     }
     
-    file.close();
+    sortScores();
     std::cout << "Leaderboard loaded from " << fullPath << std::endl;
 }
 

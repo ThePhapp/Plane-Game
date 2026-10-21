@@ -7,11 +7,11 @@
 
 struct GameData
 {
-    int highScore;
-    int coins;
-    int level;
-    int weaponLevel;
-    bool achievements[10]; // 10 achievements
+    int highScore = 0;
+    int coins = 0;
+    int level = 1;
+    int weaponLevel = 1;
+    bool achievements[10]{}; // 10 achievements
 };
 
 class SaveGame
