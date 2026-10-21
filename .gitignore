@@ -5,8 +5,11 @@
 *.out
 *.d
 
-# Bỏ thư viện Windows
+# Bỏ thư viện Windows và file thư viện tĩnh
 *.dll
+*.a
+*.la
+lib/
 
 # Bỏ các file tạm của editor/IDE
 .vscode/
