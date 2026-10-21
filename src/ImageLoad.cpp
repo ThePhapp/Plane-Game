@@ -21,7 +21,7 @@ SDL_Texture *Game::loadTexture(const std::string &path)
 void Game::loadImagee()
 {
     gSquareTexture = loadTexture("image/Player.png");
-    gBulletTexture = loadTexture("image/Bullet.png");
+    gBulletTexture = loadTexture("image/bullet.png");
     if (gSquareTexture == nullptr || gBulletTexture == nullptr)
     {
         std::cout << "Failed to load textures!" << std::endl;
@@ -50,7 +50,7 @@ void Game::loadImagee()
     }
 
     // Tải hình ảnh cho boss và đạn của boss
-    boss.loadBossImage(gRenderer, "image/boss.png");
+    boss.loadBossImage(gRenderer, "image/Boss.png");
     boss.loadBulletImage(gRenderer, "image/BossBullet.png");
     exp.loadExplosionImage(gRenderer, "image/Exp_main.png");
 
@@ -70,7 +70,7 @@ void Game::loadImagee()
 
 void Game::loadBackground()
 {
-    gBackgroundTexture = loadTexture("image/Background.png");
+    gBackgroundTexture = loadTexture("image/background.png");
 
     if (gBackgroundTexture == nullptr)
     {
@@ -134,6 +134,7 @@ void Game::renderPoints()
         SDL_RenderCopy(gRenderer, pointsTexture, nullptr, &dstRect);
 
     SDL_FreeSurface(textSurface);
+    textSurface = nullptr;
     SDL_DestroyTexture(pointsTexture);
     pointsTexture = nullptr;
 }
@@ -150,27 +151,27 @@ void Game::loadSoundd() // load sound
     {
         std::cout << "Failed to load ShootSound! Error: " << Mix_GetError() << std::endl;
     }
-    gSound = Mix_LoadWAV("Sound/mission.wav");
+    gSound = Mix_LoadWAV("sound/mission.wav");
     if (gSound == nullptr)
     {
         std::cout << "Failed to load gSound! Error: " << Mix_GetError() << std::endl;
     }
-    gShotTrung = Mix_LoadWAV("Sound/gg.wav");
+    gShotTrung = Mix_LoadWAV("sound/gg.wav");
     if (gShotTrung == nullptr)
     {
         std::cout << "Failed to load gShotTrung! Error: " << Mix_GetError() << std::endl;
     }
-    gCollision = Mix_LoadWAV("Sound/vacham.wav");
+    gCollision = Mix_LoadWAV("sound/vacham.wav");
     if (gCollision == nullptr)
     {
         std::cout << "Failed to load gCollision! Error: " << Mix_GetError() << std::endl;
     }
-    gGameOver = Mix_LoadWAV("Sound/GameOver.wav");
+    gGameOver = Mix_LoadWAV("sound/GameOver.wav");
     if (gGameOver == nullptr)
     {
         std::cout << "Failed to load gGameOver! Error: " << Mix_GetError() << std::endl;
     }
-    gWin = Mix_LoadWAV("Sound/Victory.wav");
+    gWin = Mix_LoadWAV("sound/Victory.wav");
     if (gWin == nullptr)
     {
         std::cout << "Failed to load gWin SOund! Error: " << Mix_GetError() << std::endl;
@@ -208,7 +209,7 @@ void Game::renderGameOver()            //hien thi gameOver khi thua
     {
         std::cout << "Failed to load game over image. SDL_Image Error: " << IMG_GetError() << std::endl;
     }
-    if (Mix_PlayChannel(-1, gGameOver, 0) == -1)
+    if (gGameOver && Mix_PlayChannel(-1, gGameOver, 0) == -1)
     {
         std::cout << "Failed to play GameOver sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
@@ -217,7 +218,7 @@ void Game::renderGameOver()            //hien thi gameOver khi thua
 
 void Game::renderWinMenu()           //hien thi win khi thang
 {
-    SDL_Surface *gameOverSurface = IMG_Load("image/winmenu.png");
+    SDL_Surface *gameOverSurface = IMG_Load("image/WinMenu.png");
     if (gameOverSurface)
     {
         SDL_Texture *gameOverTexture = SDL_CreateTextureFromSurface(gRenderer, gameOverSurface);
@@ -230,7 +231,7 @@ void Game::renderWinMenu()           //hien thi win khi thang
     {
         std::cout << "Failed to load game over image. SDL_Image Error: " << IMG_GetError() << std::endl;
     }
-    if (Mix_PlayChannel(-1, gWin, 0) == -1)
+    if (gWin && Mix_PlayChannel(-1, gWin, 0) == -1)
     {
         std::cout << "Failed to play Win sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
@@ -265,7 +266,8 @@ void Game::loadMenu()
 
 void Game::renderMainMenu()
 {
-    SDL_RenderCopy(gRenderer, gMenuTexture, nullptr, &menuRect);
+    if (gMenuTexture)
+        SDL_RenderCopy(gRenderer, gMenuTexture, nullptr, &menuRect);
 
     SDL_SetRenderDrawBlendMode(gRenderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 120);
@@ -293,13 +295,20 @@ void Game::renderMainMenu()
         for (auto& btn : buttons)
         {
             SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font, btn.text, color);
-            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-            int tw, th;
-            SDL_QueryTexture(textTexture, NULL, NULL, &tw, &th);
-            SDL_Rect textRect = {btn.rect.x + (btn.rect.w-tw)/2, btn.rect.y + (btn.rect.h-th)/2, tw, th};
-            SDL_RenderCopy(gRenderer, textTexture, NULL, &textRect);
-            SDL_FreeSurface(textSurface);
-            SDL_DestroyTexture(textTexture);
+            if (textSurface)
+            {
+                SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+                if (textTexture)
+                {
+                    int tw = 0;
+                    int th = 0;
+                    SDL_QueryTexture(textTexture, NULL, NULL, &tw, &th);
+                    SDL_Rect textRect = {btn.rect.x + (btn.rect.w-tw)/2, btn.rect.y + (btn.rect.h-th)/2, tw, th};
+                    SDL_RenderCopy(gRenderer, textTexture, NULL, &textRect);
+                    SDL_DestroyTexture(textTexture);
+                }
+                SDL_FreeSurface(textSurface);
+            }
         }
     }
 

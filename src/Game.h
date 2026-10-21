@@ -51,7 +51,7 @@ private:
     void handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver);
     void renderMainMenu();
     void loadExplosion();
-    void showLevelMenu();
+    bool showLevelMenu(bool &quit);
     void applyLevelSettings();
     void renderBullets();
     

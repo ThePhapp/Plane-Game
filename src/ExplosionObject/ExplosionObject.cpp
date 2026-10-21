@@ -48,7 +48,8 @@ void Explosion::update()
 
 void Explosion::render(SDL_Renderer *renderer)
 {
-    if (exploding_ && explosionTexture)
+    if (exploding_ && explosionTexture && currentFrame_ >= 0 &&
+        currentFrame_ < static_cast<int>(clips.size()))
     {
         SDL_Rect clip = clips[currentFrame_];
         SDL_RenderCopy(renderer, explosionTexture, &clip, &explosionRect);

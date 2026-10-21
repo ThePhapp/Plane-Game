@@ -88,7 +88,7 @@ void Game::damagePlayer()
     if (!hasShield)
     {
         currentHealth = std::max(0, currentHealth - 1);
-        if (Mix_PlayChannel(-1, gCollision, 0) == -1)
+        if (gCollision && Mix_PlayChannel(-1, gCollision, 0) == -1)
             std::cout << "Failed to play collision sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
@@ -112,11 +112,12 @@ void Game::run()
         {
             handleMainMenuEvent(e, quit, showMainMenu);
             renderMainMenu();
+            SDL_Delay(16);
         }
 
         if (!quit)
         {
-            showLevelMenu();
+            showLevelMenu(quit);
         }
 
         while (!gameOver && !quit)
@@ -195,6 +196,7 @@ void Game::run()
         while (gameOver && !quit)
         {
             handleGameOverEvent(e, quit, gameOver);
+            SDL_Delay(16);
         }
     }
 }
@@ -273,7 +275,7 @@ void Game::render(float deltaSeconds)
     // Render achievement notifications
     achievements.render(gRenderer, font1);
 
-    if (!Mix_Playing(-1))
+    if (gSound && !Mix_Playing(-1))
     {
         if (Mix_PlayChannel(-1, gSound, 0) == -1)
         {
@@ -284,12 +286,18 @@ void Game::render(float deltaSeconds)
     SDL_RenderPresent(gRenderer);
 }
 
-void Game::showLevelMenu()
+bool Game::showLevelMenu(bool &quit)
 {
     bool choosing = true;
     SDL_Event e;
     int selectedLevel = 1;
     TTF_Font* font = TTF_OpenFont("font/1.ttf", 36);
+    if (!font)
+    {
+        std::cout << "Failed to load level menu font: " << TTF_GetError() << std::endl;
+        quit = true;
+        return false;
+    }
 
     SDL_Color textColor = {255, 255, 255, 255};
     SDL_Color borderColor = {80, 80, 80, 255};
@@ -300,13 +308,20 @@ void Game::showLevelMenu()
         SDL_RenderClear(gRenderer);
 
         SDL_Surface* titleSurface = TTF_RenderUTF8_Blended(font, "CHOOSE YOUR LEVEL", textColor);
-        SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(gRenderer, titleSurface);
-        int tw, th;
-        SDL_QueryTexture(titleTexture, NULL, NULL, &tw, &th);
-        SDL_Rect titleRect = {SCREEN_WIDTH/2 - tw/2, SCREEN_HEIGHT/2 - 160, tw, th};
-        SDL_RenderCopy(gRenderer, titleTexture, NULL, &titleRect);
-        SDL_FreeSurface(titleSurface);
-        SDL_DestroyTexture(titleTexture);
+        if (titleSurface)
+        {
+            SDL_Texture* titleTexture = SDL_CreateTextureFromSurface(gRenderer, titleSurface);
+            if (titleTexture)
+            {
+                int tw = 0;
+                int th = 0;
+                SDL_QueryTexture(titleTexture, NULL, NULL, &tw, &th);
+                SDL_Rect titleRect = {SCREEN_WIDTH/2 - tw/2, SCREEN_HEIGHT/2 - 160, tw, th};
+                SDL_RenderCopy(gRenderer, titleTexture, NULL, &titleRect);
+                SDL_DestroyTexture(titleTexture);
+            }
+            SDL_FreeSurface(titleSurface);
+        }
 
         SDL_Rect easyRect   = {SCREEN_WIDTH/2 - 220, SCREEN_HEIGHT/2 - 60, 140, 80};
         SDL_Rect mediumRect = {SCREEN_WIDTH/2 - 70,  SCREEN_HEIGHT/2 - 60, 140, 80};
@@ -339,13 +354,20 @@ void Game::showLevelMenu()
         };
         for (auto& label : labels) {
             SDL_Surface* textSurface = TTF_RenderUTF8_Blended(font, label.text, textColor);
-            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
-            int tw, th;
-            SDL_QueryTexture(textTexture, NULL, NULL, &tw, &th);
-            SDL_Rect textRect = {label.rect.x + (label.rect.w-tw)/2, label.rect.y + (label.rect.h-th)/2, tw, th};
-            SDL_RenderCopy(gRenderer, textTexture, NULL, &textRect);
-            SDL_FreeSurface(textSurface);
-            SDL_DestroyTexture(textTexture);
+            if (textSurface)
+            {
+                SDL_Texture* textTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+                if (textTexture)
+                {
+                    int tw = 0;
+                    int th = 0;
+                    SDL_QueryTexture(textTexture, NULL, NULL, &tw, &th);
+                    SDL_Rect textRect = {label.rect.x + (label.rect.w-tw)/2, label.rect.y + (label.rect.h-th)/2, tw, th};
+                    SDL_RenderCopy(gRenderer, textTexture, NULL, &textRect);
+                    SDL_DestroyTexture(textTexture);
+                }
+                SDL_FreeSurface(textSurface);
+            }
         }
 
         SDL_RenderPresent(gRenderer);
@@ -353,18 +375,39 @@ void Game::showLevelMenu()
         while (SDL_PollEvent(&e))
         {
             if (e.type == SDL_QUIT)
-                exit(0);
-            if (e.type == SDL_MOUSEBUTTONDOWN)
             {
-                if (hoverEasy)   { selectedLevel = 1; choosing = false; }
-                if (hoverMedium) { selectedLevel = 2; choosing = false; }
-                if (hoverHard)   { selectedLevel = 3; choosing = false; }
+                quit = true;
+                choosing = false;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN)
+            {
+                const SDL_Point clickPoint = {e.button.x, e.button.y};
+                if (SDL_PointInRect(&clickPoint, &easyRect))
+                {
+                    selectedLevel = 1;
+                    choosing = false;
+                }
+                else if (SDL_PointInRect(&clickPoint, &mediumRect))
+                {
+                    selectedLevel = 2;
+                    choosing = false;
+                }
+                else if (SDL_PointInRect(&clickPoint, &hardRect))
+                {
+                    selectedLevel = 3;
+                    choosing = false;
+                }
             }
         }
+        SDL_Delay(16);
     }
     TTF_CloseFont(font);
+    if (quit)
+        return false;
+
     level = selectedLevel;
     applyLevelSettings();
+    return true;
 }
 
 void Game::applyLevelSettings()

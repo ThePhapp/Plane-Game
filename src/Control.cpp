@@ -72,14 +72,13 @@ void Game::handleEvent(SDL_Event &e, bool &quit, float deltaSeconds)
 
     if (currentKeyStates[SDL_SCANCODE_SPACE] && fireBullet())
     {
-        if (Mix_PlayChannel(-1, gShootSound, 0) == -1)
+        if (gShootSound && Mix_PlayChannel(-1, gShootSound, 0) == -1)
             std::cout << "Failed to play shoot sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 }
 
 void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // xử lý thao tác Main Menu
 {
-    int mouseX, mouseY;
     playButtonRect = {SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT * 5 / 7 + 40, 150, 70};
     quitButtonRect = {SCREEN_WIDTH / 2 - 170, SCREEN_HEIGHT * 5 / 7 + 130, 320, 80};
     while (SDL_PollEvent(&e) != 0)
@@ -89,30 +88,10 @@ void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // 
             quit = true;
             showMainMenu = false;
         }
-        else if (e.type == SDL_MOUSEMOTION)
-        { // Bắt sự kiện di chuyển chuột
-            SDL_GetMouseState(&mouseX, &mouseY);
-            if (mouseX >= playButtonRect.x && mouseX <= playButtonRect.x + playButtonRect.w &&
-                mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h)
-            {
-                mouseOverPlay = true;
-            }
-            else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
-                     mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h)
-            {
-                mouseOverQuit = true;
-            }
-            else
-            {
-                mouseOverPlay = false;
-                mouseOverQuit = false;
-            }
-        }
         else if (e.type == SDL_MOUSEBUTTONDOWN)
         {
-            SDL_GetMouseState(&mouseX, &mouseY);
-            if (mouseX >= playButtonRect.x && mouseX <= playButtonRect.x + playButtonRect.w &&
-                mouseY >= playButtonRect.y && mouseY <= playButtonRect.y + playButtonRect.h)
+            const SDL_Point clickPoint = {e.button.x, e.button.y};
+            if (SDL_PointInRect(&clickPoint, &playButtonRect))
             {
                 showMainMenu = false; // bắt đầu game
                 if (points > highestPoint)
@@ -121,14 +100,18 @@ void Game::handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu) // 
                 level = 1;
                 gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
             }
-            else if (mouseX >= quitButtonRect.x && mouseX <= quitButtonRect.x + quitButtonRect.w &&
-                     mouseY >= quitButtonRect.y && mouseY <= quitButtonRect.y + quitButtonRect.h)
+            else if (SDL_PointInRect(&clickPoint, &quitButtonRect))
             {
                 quit = true; // thoát game
                 showMainMenu = false;
             }
         }
     }
+
+    SDL_Point mousePoint;
+    SDL_GetMouseState(&mousePoint.x, &mousePoint.y);
+    mouseOverPlay = SDL_PointInRect(&mousePoint, &playButtonRect);
+    mouseOverQuit = SDL_PointInRect(&mousePoint, &quitButtonRect);
 }
 
 void Game::handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver)
