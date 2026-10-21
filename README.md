@@ -18,7 +18,7 @@
 - <img src="image/Player.png" width="32px"> **Player:** Move with arrow keys (↑ ↓ ← →), shoot with SPACE. Dodge enemy and boss bullets!
 - <img src="image/obstacle.png" width="32px"> **Enemy (Obstacle):** Randomly spawned, destroyed by your bullets.
 - <img src="image/Boss.png" width="32px"> **Boss:** The final challenge! Moves vertically, fires bullets, and has a health bar.
-- ![](image/Bullet.png) ![](image/BossBullet.png) **Bullets:** Both player and boss fire bullets. Player bullets go right, boss bullets go left.
+- ![](image/bullet.png) ![](image/BossBullet.png) **Bullets:** Both player and boss fire bullets. Player bullets go right, boss bullets go left.
 - <img src="image/health.png" width="56px"> **Lives:** You start with 3 lives. Lose one if hit by an enemy, boss bullet, or after missing 4 shots.
 
 ### Level Selection & Difficulty
