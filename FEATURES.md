@@ -31,9 +31,12 @@ Các power-up xuất hiện ngẫu nhiên khi tiêu diệt enemies:
 - Mỗi level tăng damage và fire rate
 - Hỗ trợ 4 loại vũ khí:
   - `WEAPON_NORMAL` - Súng thường
-  - `WEAPON_LASER` - Laser xuyên suốt (chưa implement)
-  - `WEAPON_MISSILE` - Tên lửa tự tìm (chưa implement)
-  - `WEAPON_SPREAD` - Bắn tán (chưa implement)
+  - `WEAPON_LASER` - Đạn dài, thân hẹp
+  - `WEAPON_MISSILE` - Đạn lớn
+  - `WEAPON_SPREAD` - Bắn 3 hướng
+- Giữ **SPACE** để bắn liên tục theo fire-rate.
+- Nhấn **1–4** để đổi loại vũ khí.
+- Nhấn **U** để dùng 500 điểm nâng cấp vũ khí, tối đa level 5.
 
 ---
 
@@ -247,13 +250,12 @@ mingw32-make clean
 
 ### **Có thể thêm:**
 1. **Shop System** - Dùng coins để mua upgrades
-2. **More Weapon Types** - Implement Laser, Missile, Spread
-3. **Combo System** - Multiplier khi tiêu diệt liên tiếp
-4. **Particle Effects** - Vệt khói, tia lửa, explosion particles
-5. **Sound Effects** - Thêm âm thanh cho power-ups, achievements
-6. **Config Menu** - Volume, key binding, graphics settings
-7. **Story Mode** - Multiple levels with different bosses
-8. **Local Co-op** - 2 players cùng chơi
+2. **Combo System** - Multiplier khi tiêu diệt liên tiếp
+3. **Particle Effects** - Vệt khói, tia lửa, explosion particles
+4. **Sound Effects** - Thêm âm thanh cho power-ups, achievements
+5. **Config Menu** - Volume, key binding, graphics settings
+6. **Story Mode** - Multiple levels with different bosses
+7. **Local Co-op** - 2 players cùng chơi
 
 ---
 

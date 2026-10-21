@@ -31,6 +31,7 @@
 - Tăng damage và fire rate khi upgrade
 - Hỗ trợ 4 weapon types (Normal, Laser, Missile, Spread)
 - Fire rate limiter
+- Giữ SPACE để bắn liên tục; phím 1–4 đổi weapon; phím U nâng cấp với 500 điểm
 
 ### ✅ **4. Save/Load System**
 **Files created:**

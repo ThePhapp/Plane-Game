@@ -33,6 +33,9 @@
 ![image](https://github.com/ThePhapp/PRJ/assets/161786445/aa5ba866-4510-4b45-a3a5-71c86dfb4b57)
 - Click **Play** to start, then select your level.
 - Move with arrow keys, shoot with SPACE.
+- Hold **SPACE** to fire continuously.
+- Press **1–4** to switch between Normal, Laser, Missile, and Spread weapons.
+- Press **U** to spend 500 points on a weapon upgrade (up to level 5).
 ![image](https://github.com/ThePhapp/PRJ/assets/161786445/009d4b8e-bbb0-443d-8779-0832e258d74d)
 - Destroy enemies for +100 points each.
 - Survive and defeat the boss to win!
