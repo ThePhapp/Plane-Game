@@ -36,15 +36,13 @@ public:
 private:
     bool initSDL();
     void closeSDL();
-    void spawnObstacle();
-    void updateObstacle(float deltaSeconds);
-    void handleBulletCollision();
     void render(float deltaSeconds);
     void loadImagee();
     void loadBackground();
     void renderBackground(float deltaSeconds);
     void loadSoundd();
-    bool isCollision();
+    void resetRun();
+    void damagePlayer();
     void renderPoints();
     void renderGameOver();
     void renderWinMenu();
@@ -86,11 +84,9 @@ private:
     int backgroundPosX;
     int points;
     int level = 1;
-    int miss;
     int highestPoint = 0;
     int maxHealth = 3;
     int currentHealth;
-    bool isObstacleActive = false;
     bool showMainMenu = true;
     bool mouseOverPlay = false;
     bool mouseOverQuit = false;
@@ -124,6 +120,7 @@ private:
     int shotsFired;
     int shotsHit;
     Uint32 levelStartTime;
+    Uint32 damageCooldownEnd = 0;
 
     SDL_Window *gWindow = nullptr;
     SDL_Renderer *gRenderer = nullptr;
@@ -141,7 +138,6 @@ private:
     SDL_Rect menuRect;
     SDL_Rect gSquareRect;
     SDL_Rect dstRect = {10, 10, 200, 50};
-    SDL_Rect gObstacleRect;
     SDL_Rect playButtonRect;
     SDL_Rect quitButtonRect;
     SDL_Rect playAgainButtonRect;

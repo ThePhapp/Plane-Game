@@ -114,34 +114,3 @@ bool Obstacle::takeDamage(int damage)
     return false; // Enemy still alive
 }
 
-// ==================== OLD OBSTACLE FUNCTIONS (Backward Compatibility) ====================
-
-void Game::updateObstacle(float deltaSeconds)
-{
-    if (!isObstacleActive)
-    {
-        spawnObstacle();
-    }
-
-    int obstacleSpeed = 4;
-    if (level == 1)
-        obstacleSpeed = 4;
-    else if (level == 2)
-        obstacleSpeed = 8;
-    else if (level == 3)
-        obstacleSpeed = 12;
-
-    gObstacleRect.x -= static_cast<int>(obstacleSpeed * SCREEN_FPS * deltaSeconds);
-
-    if (gObstacleRect.x + gObstacleRect.w < 0)
-    {
-        isObstacleActive = false;
-        miss++;
-    }
-}
-
-void Game::spawnObstacle()
-{
-    gObstacleRect = {SCREEN_WIDTH - 50, rand() % (SCREEN_HEIGHT - 50), 80, 80};
-    isObstacleActive = true;
-}

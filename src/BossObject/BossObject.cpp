@@ -56,8 +56,33 @@ Boss::Boss(BossType bType)
 
 Boss::~Boss()
 {
-    if (bossTexture) SDL_DestroyTexture(bossTexture);
-    if (bulletTexture) SDL_DestroyTexture(bulletTexture);
+    releaseResources();
+}
+
+void Boss::reset()
+{
+    active = false;
+    health = maxHealth;
+    phase = 1;
+    lastShootTime = 0;
+    explosionStartTime = 0;
+    bulletBoss.clear();
+    exp1.stop();
+}
+
+void Boss::releaseResources()
+{
+    if (bossTexture)
+    {
+        SDL_DestroyTexture(bossTexture);
+        bossTexture = nullptr;
+    }
+    if (bulletTexture)
+    {
+        SDL_DestroyTexture(bulletTexture);
+        bulletTexture = nullptr;
+    }
+    exp1.release();
 }
 
 void Boss::loadBossImage(SDL_Renderer *renderer, const char *filePath)
@@ -92,29 +117,30 @@ void Boss::loadBulletImage(SDL_Renderer *renderer, const char *filePath)
 
 void Boss::render(SDL_Renderer *renderer)
 {
-    if (!active || !bossTexture) return;
+    if (active && bossTexture)
+    {
+        SDL_RenderCopy(renderer, bossTexture, nullptr, &rect);
 
-    SDL_RenderCopy(renderer, bossTexture, nullptr, &rect);
+        // Draw health bar (smooth)
+        float healthPercent = std::max(0.0f, std::min(1.0f, (float)health / maxHealth));
+        int healthBarWidth = static_cast<int>(rect.w * healthPercent);
+        SDL_Rect healthBar = {rect.x, rect.y - 15, healthBarWidth, 8};
 
-    // Draw health bar (smooth)
-    float healthPercent = std::max(0.0f, std::min(1.0f, (float)health / maxHealth));
-    int healthBarWidth = static_cast<int>(rect.w * healthPercent);
-    SDL_Rect healthBar = {rect.x, rect.y - 15, healthBarWidth, 8};
-    
-    // Color based on health
-    if (healthPercent > 0.5f)
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green
-    else if (healthPercent > 0.25f)
-        SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow
-    else
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red
-        
-    SDL_RenderFillRect(renderer, &healthBar);
-    
-    // Draw health bar border
-    SDL_Rect healthBarBorder = {rect.x, rect.y - 15, rect.w, 8};
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderDrawRect(renderer, &healthBarBorder);
+        // Color based on health
+        if (healthPercent > 0.5f)
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Green
+        else if (healthPercent > 0.25f)
+            SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow
+        else
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255); // Red
+
+        SDL_RenderFillRect(renderer, &healthBar);
+
+        // Draw health bar border
+        SDL_Rect healthBarBorder = {rect.x, rect.y - 15, rect.w, 8};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderDrawRect(renderer, &healthBarBorder);
+    }
 
     // Draw boss bullets
     for (const auto &bullet : bulletBoss)

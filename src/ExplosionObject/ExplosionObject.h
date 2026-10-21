@@ -14,7 +14,9 @@ public:
     void update();
     void render(SDL_Renderer *renderer);
     void start(int x, int y); // Khởi tạo vị trí cho animation nổ
+    void stop() { exploding_ = false; }
     void loadExplosionImage(SDL_Renderer *renderer, const char *filePath);
+    void release();
     bool isExploding() const
     {
         return exploding_;

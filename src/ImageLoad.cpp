@@ -52,6 +52,7 @@ void Game::loadImagee()
     // Tải hình ảnh cho boss và đạn của boss
     boss.loadBossImage(gRenderer, "image/boss.png");
     boss.loadBulletImage(gRenderer, "image/BossBullet.png");
+    exp.loadExplosionImage(gRenderer, "image/Exp_main.png");
 
     const char* powerUpPaths[] = {
         "image/powerup_shield.png",
@@ -97,7 +98,8 @@ void Game::renderBackground(float deltaSeconds) // tao background di chuyen
 void Game::renderPoints()
 {
     std::string pointString = "     Score: " + std::to_string(points) + "           Highest: " + std::to_string(highestPoint) + "                                                Level: " + std::to_string(level) +
-                              "          Miss: " + std::to_string(miss) + "/4";
+                              "          Accuracy: " +
+                              (shotsFired > 0 ? std::to_string((shotsHit * 100) / shotsFired) : "0") + "%";
     if (font1 == nullptr)
     {
         std::cout << "Failed to load font: " << TTF_GetError() << std::endl;
@@ -225,26 +227,6 @@ void Game::renderWinMenu()           //hien thi win khi thang
 
 void Game::loadExplosion() // render explosion
 {
-    if (isCollision())
-    {
-        if (!exp.isExploding()) // Kiểm tra vụ nổ có đang diễn ra không để tránh việc load ảnh và bắt đầu vụ nổ khi đang có vụ nổ khác
-        {
-            exp.loadExplosionImage(gRenderer, "image/exp_main.png");
-            exp.start(gSquareRect.x, gSquareRect.y);
-        }
-    }
-    for (auto &bulletB : Boss::getBulletBoss())
-    {
-        if (SDL_HasIntersection(&gSquareRect, &bulletB.rect))                //neu co va cham voi dan cua boss thi render explosion
-        {
-            if (!exp.isExploding())
-            {
-                exp.loadExplosionImage(gRenderer, "image/exp_main.png");
-                exp.start(gSquareRect.x, gSquareRect.y);
-            }
-        }
-    }
-
     if (exp.isExploding())
     {
         exp.update();

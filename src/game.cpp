@@ -25,7 +25,6 @@ Game::Game()
     loadBackground();
     loadSoundd();
     this->points = 0;
-    this->miss = 0;
     currentHealth = maxHealth;
     
     // Initialize new systems
@@ -51,6 +50,50 @@ Game::Game()
 Game::~Game()
 {
     closeSDL();
+}
+
+void Game::resetRun()
+{
+    points = 0;
+    currentHealth = maxHealth;
+    enemiesKilled = 0;
+    powerUpsCollected = 0;
+    shotsFired = 0;
+    shotsHit = 0;
+    hasShield = false;
+    hasRapidFire = false;
+    hasDoubleShot = false;
+    shieldEndTime = 0;
+    rapidFireEndTime = 0;
+    doubleShotEndTime = 0;
+    lastFireTime = 0;
+    damageCooldownEnd = 0;
+    levelStartTime = SDL_GetTicks();
+
+    bullets.clear();
+    Boss::getBulletBoss().clear();
+    powerUps.clear();
+    obstacles.clear();
+    boss.reset();
+    exp.stop();
+}
+
+void Game::damagePlayer()
+{
+    const Uint32 now = SDL_GetTicks();
+    if (now < damageCooldownEnd)
+        return;
+
+    damageCooldownEnd = now + 350;
+    if (!hasShield)
+    {
+        currentHealth = std::max(0, currentHealth - 1);
+        if (Mix_PlayChannel(-1, gCollision, 0) == -1)
+            std::cout << "Failed to play collision sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
+    }
+
+    if (!exp.isExploding())
+        exp.start(gSquareRect.x, gSquareRect.y);
 }
 
 void Game::run()
@@ -86,10 +129,6 @@ void Game::run()
 
             handleEvent(e, quit, deltaSeconds);
             
-            // Update old obstacle (backward compatibility)
-            updateObstacle(deltaSeconds);
-            handleBulletCollision();
-            
             // Update new systems
             updateBullets(deltaSeconds);
             updateObstacles(deltaSeconds);
@@ -118,31 +157,10 @@ void Game::run()
             if (frameTicks < SCREEN_TICKS_PER_FRAME)
                 SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
 
-            if (isCollision() || miss == 4)
-            {
-                if (!hasShield)
-                {
-                    currentHealth -= 1;
-                    miss = 0;
-                    isObstacleActive = false;
-                    if (Mix_PlayChannel(-1, gCollision, 0) == -1)
-                    {
-                        std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
-                    }
-                }
-                else
-                {
-                    std::cout << "Shield blocked damage!" << std::endl;
-                    miss = 0;
-                    isObstacleActive = false;
-                }
-            }
-
-            if (currentHealth == 0)
+            if (currentHealth <= 0)
             {
                 gameOver = true;
                 renderGameOver();
-                isObstacleActive = false;
                 
                 // Save score to leaderboard
                 ScoreEntry entry("Player", points, level);
@@ -157,7 +175,6 @@ void Game::run()
                 {
                     gameOver = true;
                     renderWinMenu();
-                    isObstacleActive = false;
                     
                     // Achievement for beating boss
                     achievements.unlock(ACH_BOSS_SLAYER);
@@ -225,9 +242,6 @@ void Game::render(float deltaSeconds)
     // Render player
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
     
-    // Render old obstacle (for backward compatibility)
-    SDL_RenderCopy(gRenderer, gObstacleTexture, nullptr, &gObstacleRect);
-    
     // Render new obstacles
     renderObstacles();
     
@@ -257,11 +271,6 @@ void Game::render(float deltaSeconds)
     }
 
     SDL_RenderPresent(gRenderer);
-}
-
-bool Game::isCollision()
-{
-    return Collision::checkCollision(gSquareRect, gObstacleRect);
 }
 
 void Game::showLevelMenu()
@@ -380,6 +389,9 @@ void Game::closeSDL()
 {
     if (!sdlInitialized)
         return;
+
+    boss.releaseResources();
+    exp.release();
 
     if (font1)
     {
@@ -659,22 +671,10 @@ void Game::handleObstacleCollision()
         
         // Check player collision
         SDL_Rect obstacleRect = obstacle.getRect();
-        if (SDL_HasIntersection(&gSquareRect, &obstacleRect))
+        if (obstacle.isActive() && SDL_HasIntersection(&gSquareRect, &obstacleRect))
         {
-            if (!hasShield)
-            {
-                currentHealth--;
-                obstacle.setActive(false);
-                
-                if (Mix_PlayChannel(-1, gCollision, 0) == -1)
-                    std::cout << "Failed to play collision sound!" << std::endl;
-            }
-            else
-            {
-                // Shield blocks damage
-                obstacle.setActive(false);
-                std::cout << "Shield blocked damage!" << std::endl;
-            }
+            obstacle.setActive(false);
+            damagePlayer();
         }
     }
 }
@@ -693,6 +693,7 @@ void Game::renderObstacles()
 void Game::saveGame()
 {
     GameData data;
+    highestPoint = std::max(highestPoint, points);
     data.highScore = highestPoint;
     data.coins = points;
     data.level = level;

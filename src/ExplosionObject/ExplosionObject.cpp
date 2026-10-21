@@ -13,7 +13,18 @@ Explosion::Explosion() : exploding_(false), currentFrame_(0), frameDelay_(100), 
 
 Explosion::~Explosion()
 {
-    SDL_DestroyTexture(explosionTexture);
+    release();
+}
+
+void Explosion::release()
+{
+    if (explosionTexture)
+    {
+        SDL_DestroyTexture(explosionTexture);
+        explosionTexture = nullptr;
+    }
+    clips.clear();
+    exploding_ = false;
 }
 
 void Explosion::update()
@@ -41,7 +52,6 @@ void Explosion::render(SDL_Renderer *renderer)
     {
         SDL_Rect clip = clips[currentFrame_];
         SDL_RenderCopy(renderer, explosionTexture, &clip, &explosionRect);
-        SDL_Delay(100);
     }
 }
 void Explosion::start(int x, int y)
@@ -55,6 +65,7 @@ void Explosion::start(int x, int y)
 
 void Explosion::loadExplosionImage(SDL_Renderer *renderer, const char *filePath)
 {
+    release();
     SDL_Surface *surface = IMG_Load(filePath);
     if (surface)
     {

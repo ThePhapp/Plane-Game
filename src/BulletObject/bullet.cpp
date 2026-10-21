@@ -2,23 +2,6 @@
 #include "BossObject/BossObject.h"
 #include <algorithm>
 
-void Game::handleBulletCollision()
-{ // Đạn trúng -> dừng
-  for (auto &bullet : bullets)
-  {
-    if (bullet.active && SDL_HasIntersection(&bullet.rect, &gObstacleRect))
-    {
-      bullet.active = false;
-      isObstacleActive = false;
-      this->points += 100;
-      if (Mix_PlayChannel(-1, gShotTrung, 0) == -1)
-      {
-        std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
-      }
-    }
-  }
-}
-
 void Game::fireBullet()
 {
     Uint32 currentTime = SDL_GetTicks();
@@ -91,24 +74,9 @@ void Game::handleBossBulletCollision()
     {
         if (bulletB.active && SDL_HasIntersection(&gSquareRect, &bulletB.rect))
         {
-            if (!hasShield)
-            {
-                currentHealth -= 1;
-                bulletB.active = false;
-                bulletB.rect = {0, 0, 0, 0};
-                
-                if (Mix_PlayChannel(-1, gCollision, 0) == -1)
-                {
-                    std::cout << "Failed to play sound effect! SDL_mixer Error: " << Mix_GetError() << std::endl;
-                }
-            }
-            else
-            {
-                // Shield blocks damage
-                bulletB.active = false;
-                bulletB.rect = {0, 0, 0, 0};
-                std::cout << "Shield blocked boss bullet!" << std::endl;
-            }
+            bulletB.active = false;
+            bulletB.rect = {0, 0, 0, 0};
+            damagePlayer();
         }
     }
 }

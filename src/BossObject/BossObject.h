@@ -45,6 +45,8 @@ public:
     int getMaxHealth() const { return maxHealth; }
     bool isExploding() const { return exp1.isExploding(); }
     void startExplosion(SDL_Renderer* renderer);
+    void reset();
+    void releaseResources();
     Uint32 getExplosionStartTime() const { return explosionStartTime; }
     void loadExplosionBoss(SDL_Renderer *renderer);
 
