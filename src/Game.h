@@ -37,12 +37,12 @@ private:
     bool initSDL();
     void closeSDL();
     void spawnObstacle();
-    void updateObstacle();
+    void updateObstacle(float deltaSeconds);
     void handleBulletCollision();
-    void render();
+    void render(float deltaSeconds);
     void loadImagee();
     void loadBackground();
-    void renderBackground();
+    void renderBackground(float deltaSeconds);
     void loadSoundd();
     bool isCollision();
     void renderPoints();
@@ -51,29 +51,28 @@ private:
     void renderHealth();
     void handleBossBulletCollision();
     void fireBullet();
-    void updateBullets();
-    void handleEvent(SDL_Event &e, bool &quit);
+    void updateBullets(float deltaSeconds);
+    void handleEvent(SDL_Event &e, bool &quit, float deltaSeconds);
     void loadTextTexture(const std::string &text);
     void loadMenu();
     void handleMainMenuEvent(SDL_Event &e, bool &quit, bool &showMainMenu);
     void handleGameOverEvent(SDL_Event &e, bool &quit, bool &gameOver);
     void renderMainMenu();
     void loadExplosion();
-    void updateFPS();
     void showLevelMenu();
     void applyLevelSettings();
     void renderBullets();
     
     // Power-up functions
     void spawnPowerUp();
-    void updatePowerUps();
+    void updatePowerUps(float deltaSeconds);
     void handlePowerUpCollision();
     void applyPowerUpEffect(PowerUpType type);
     void renderPowerUps();
     
     // Obstacle functions
     void spawnObstacleNew();
-    void updateObstacles();
+    void updateObstacles(float deltaSeconds);
     void handleObstacleCollision();
     void renderObstacles();
     
@@ -98,7 +97,6 @@ private:
     const int HEALTH_WIDTH = 50;
     const int HEALTH_HEIGHT = 50;
     const int HEALTH_SPACING = 10;
-    Uint32 gStartTime;
 
     Boss boss;
     Explosion exp;

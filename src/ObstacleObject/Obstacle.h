@@ -18,7 +18,7 @@ public:
     Obstacle(int x, int y, EnemyType type);
     ~Obstacle();
 
-    void update(SDL_Rect playerRect);
+    void update(SDL_Rect playerRect, float deltaSeconds);
     void render(SDL_Renderer* renderer);
     void setTexture(SDL_Texture* value) { texture = value; }
     bool takeDamage(int damage);

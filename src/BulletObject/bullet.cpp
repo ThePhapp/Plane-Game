@@ -53,13 +53,13 @@ void Game::fireBullet()
     }
 }
 
-void Game::updateBullets()
+void Game::updateBullets(float deltaSeconds)
 {
     for (auto &bullet : bullets)
     {
         if (bullet.active)
         {
-            bullet.rect.x += 14; // Bullet speed
+            bullet.rect.x += static_cast<int>(14 * SCREEN_FPS * deltaSeconds); // Bullet speed
             if (bullet.rect.x > SCREEN_WIDTH)
             {
                 bullet.active = false;

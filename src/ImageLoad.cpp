@@ -78,9 +78,9 @@ void Game::loadBackground()
     backgroundPosX = 0;
 }
 
-void Game::renderBackground() // tao background di chuyen
+void Game::renderBackground(float deltaSeconds) // tao background di chuyen
 {
-    backgroundPosX -= 5;           //background speed
+    backgroundPosX -= static_cast<int>(5 * SCREEN_FPS * deltaSeconds); // background speed
 
     if (backgroundPosX < -SCREEN_WIDTH)
     {

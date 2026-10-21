@@ -1,4 +1,5 @@
 #include "PowerUp.h"
+#include "Game.h"
 
 PowerUp::PowerUp()
     : texture(nullptr), active(false), speed(3), duration(5000)
@@ -37,13 +38,13 @@ PowerUp::~PowerUp()
 {
 }
 
-void PowerUp::update()
+void PowerUp::update(float deltaSeconds)
 {
     if (!active)
         return;
     
     // Move left
-    rect.x -= speed;
+    rect.x -= static_cast<int>(speed * SCREEN_FPS * deltaSeconds);
     
     // Deactivate if out of screen
     if (rect.x + rect.w < 0)

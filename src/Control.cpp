@@ -1,6 +1,6 @@
 #include "game.h"
 
-void Game::handleEvent(SDL_Event &e, bool &quit)
+void Game::handleEvent(SDL_Event &e, bool &quit, float deltaSeconds)
 {
     static bool spacePressed = false; // Biến để kiểm tra xem nút Space đã được nhấn hay chưa tránh spawn đạn
 
@@ -37,9 +37,11 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
         quit = true;
     }
 
+    const int moveDistance = static_cast<int>(7 * SCREEN_FPS * deltaSeconds);
+
     if (currentKeyStates[SDL_SCANCODE_UP])
     {
-        gSquareRect.y -= 7;
+        gSquareRect.y -= moveDistance;
         if (gSquareRect.y < 0)
         {
             gSquareRect.y = 0;
@@ -48,7 +50,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
 
     if (currentKeyStates[SDL_SCANCODE_DOWN])
     {
-        gSquareRect.y += 7;
+        gSquareRect.y += moveDistance;
         if (gSquareRect.y > SCREEN_HEIGHT - gSquareRect.w)
         {
             gSquareRect.y = SCREEN_HEIGHT - gSquareRect.w;
@@ -57,7 +59,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
 
     if (currentKeyStates[SDL_SCANCODE_LEFT])
     {
-        gSquareRect.x -= 7;
+        gSquareRect.x -= moveDistance;
         if (gSquareRect.x < 0)
         {
             gSquareRect.x = 0;
@@ -66,7 +68,7 @@ void Game::handleEvent(SDL_Event &e, bool &quit)
 
     if (currentKeyStates[SDL_SCANCODE_RIGHT])
     {
-        gSquareRect.x += 7;
+        gSquareRect.x += moveDistance;
         if (gSquareRect.x > SCREEN_WIDTH - gSquareRect.w)
         {
             gSquareRect.x = SCREEN_WIDTH - gSquareRect.w;

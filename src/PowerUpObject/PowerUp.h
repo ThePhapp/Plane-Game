@@ -19,7 +19,7 @@ public:
     PowerUp(int x, int y, PowerUpType type);
     ~PowerUp();
 
-    void update();
+    void update(float deltaSeconds);
     void render(SDL_Renderer* renderer);
     void setTexture(SDL_Texture* value) { texture = value; }
     

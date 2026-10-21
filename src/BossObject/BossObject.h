@@ -26,7 +26,7 @@ public:
     ~Boss();
 
     void render(SDL_Renderer *renderer);
-    void update();
+    void update(float deltaSeconds);
     bool handleBulletCollision();
     void shootBullet();
     void shootPattern(); // Different shooting patterns

@@ -54,11 +54,13 @@ Obstacle::~Obstacle()
 {
 }
 
-void Obstacle::update(SDL_Rect playerRect)
+void Obstacle::update(SDL_Rect playerRect, float deltaSeconds)
 {
     if (!active)
         return;
     
+    const float movement = speed * SCREEN_FPS * deltaSeconds;
+
     if (type == ENEMY_KAMIKAZE)
     {
         // Kamikaze moves toward player
@@ -68,14 +70,14 @@ void Obstacle::update(SDL_Rect playerRect)
         
         if (distance > 0)
         {
-            rect.x += (int)((dx / distance) * speed);
-            rect.y += (int)((dy / distance) * speed);
+            rect.x += static_cast<int>((dx / distance) * movement);
+            rect.y += static_cast<int>((dy / distance) * movement);
         }
     }
     else
     {
         // Normal movement (left)
-        rect.x -= speed;
+        rect.x -= static_cast<int>(movement);
     }
     
     // Deactivate if out of screen
@@ -114,7 +116,7 @@ bool Obstacle::takeDamage(int damage)
 
 // ==================== OLD OBSTACLE FUNCTIONS (Backward Compatibility) ====================
 
-void Game::updateObstacle()
+void Game::updateObstacle(float deltaSeconds)
 {
     if (!isObstacleActive)
     {
@@ -129,7 +131,7 @@ void Game::updateObstacle()
     else if (level == 3)
         obstacleSpeed = 12;
 
-    gObstacleRect.x -= obstacleSpeed;
+    gObstacleRect.x -= static_cast<int>(obstacleSpeed * SCREEN_FPS * deltaSeconds);
 
     if (gObstacleRect.x + gObstacleRect.w < 0)
     {

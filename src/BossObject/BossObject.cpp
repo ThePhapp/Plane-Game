@@ -132,8 +132,11 @@ void Boss::render(SDL_Renderer *renderer)
     }
 }
 
-void Boss::update()
+void Boss::update(float deltaSeconds)
 {
+    if (exp1.isExploding())
+        exp1.update();
+
     if (!active) return;
     
     // Check phase change
@@ -150,16 +153,24 @@ void Boss::update()
     }
 
     // Move boss vertically
-    rect.y += speed;
-    if (rect.y <= 0 || rect.y >= SCREEN_HEIGHT - rect.h)
-        speed = -speed;
+    rect.y += static_cast<int>(speed * SCREEN_FPS * deltaSeconds);
+    if (rect.y <= 0)
+    {
+        rect.y = 0;
+        speed = std::abs(speed);
+    }
+    else if (rect.y >= SCREEN_HEIGHT - rect.h)
+    {
+        rect.y = SCREEN_HEIGHT - rect.h;
+        speed = -std::abs(speed);
+    }
 
     // Update boss bullets
     for (auto &bullet : bulletBoss)
     {
         if (bullet.active)
         {
-            bullet.rect.x -= bulletSpeed;
+            bullet.rect.x -= static_cast<int>(bulletSpeed * SCREEN_FPS * deltaSeconds);
             if (bullet.rect.x + bullet.rect.w < 0)
                 bullet.active = false;
         }
@@ -180,9 +191,6 @@ void Boss::update()
         lastShootTime = now;
     }
 
-    // Update explosion
-    if (exp1.isExploding())
-        exp1.update();
 }
 
 // ...existing code...

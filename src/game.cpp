@@ -27,7 +27,6 @@ Game::Game()
     this->points = 0;
     this->miss = 0;
     currentHealth = maxHealth;
-    gStartTime = SDL_GetTicks();
     
     // Initialize new systems
     hasShield = false;
@@ -60,6 +59,7 @@ void Game::run()
     SDL_Event e;
     bool quit = false;
     bool gameOver = false;
+    Uint32 previousFrameTicks = SDL_GetTicks();
 
     loadMenu();
 
@@ -78,16 +78,22 @@ void Game::run()
 
         while (!gameOver && !quit)
         {
-            handleEvent(e, quit);
+            const Uint32 frameStartTicks = SDL_GetTicks();
+            const float deltaSeconds = std::min(
+                (frameStartTicks - previousFrameTicks) / 1000.0f,
+                0.05f);
+            previousFrameTicks = frameStartTicks;
+
+            handleEvent(e, quit, deltaSeconds);
             
             // Update old obstacle (backward compatibility)
-            updateObstacle();
+            updateObstacle(deltaSeconds);
             handleBulletCollision();
             
             // Update new systems
-            updateBullets();
-            updateObstacles();
-            updatePowerUps();
+            updateBullets(deltaSeconds);
+            updateObstacles(deltaSeconds);
+            updatePowerUps(deltaSeconds);
             handleObstacleCollision();
             handlePowerUpCollision();
             handleBossBulletCollision();
@@ -95,8 +101,22 @@ void Game::run()
             // Spawn new enemies periodically
             if (obstacles.size() < 5 && rand() % 100 < 3)
                 spawnObstacleNew();
+
+            if (!boss.isActive() && boss.getHealth() > 0 && points >= 1000)
+                boss.setActive(true);
+
+            if (boss.isActive())
+            {
+                boss.update(deltaSeconds);
+                if (boss.handleBulletCollision())
+                    boss.startExplosion(gRenderer);
+            }
             
-            render();
+            render(deltaSeconds);
+
+            const Uint32 frameTicks = SDL_GetTicks() - frameStartTicks;
+            if (frameTicks < SCREEN_TICKS_PER_FRAME)
+                SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
 
             if (isCollision() || miss == 4)
             {
@@ -130,7 +150,7 @@ void Game::run()
                 saveGame();
             }
 
-            if (!boss.isActive() && points >= 1000)
+            if (!boss.isActive() && boss.getHealth() == 0 && points >= 1000)
             {
                 Uint32 currentTime = SDL_GetTicks();
                 if (currentTime - boss.getExplosionStartTime() >= 410)
@@ -197,22 +217,10 @@ bool Game::initSDL()
     return true;
 }
 
-void Game::updateFPS()
-{
-    Uint32 frameTicks = SDL_GetTicks() - gStartTime;
-    if (frameTicks < SCREEN_TICKS_PER_FRAME)
-    {
-        SDL_Delay(SCREEN_TICKS_PER_FRAME - frameTicks);
-    }
-    // Cập nhật thời gian bắt đầu
-    gStartTime = SDL_GetTicks();
-}
-
-void Game::render()
+void Game::render(float deltaSeconds)
 {
     SDL_RenderClear(gRenderer);
-    renderBackground();
-    updateFPS();
+    renderBackground(deltaSeconds);
     
     // Render player
     SDL_RenderCopy(gRenderer, gSquareTexture, nullptr, &gSquareRect);
@@ -233,21 +241,9 @@ void Game::render()
     // Render bullets
     renderBullets();
     
-    // Boss logic
-    if (!boss.isActive() && points >= 1000)
-    {
-        boss.setActive(true);
-    }
-
-    if (boss.isActive())
-    {
-        boss.update();
-        boss.render(gRenderer);
-        boss.handleBulletCollision();
-    }
+    boss.render(gRenderer);
 
     loadExplosion();
-    boss.loadExplosionBoss(gRenderer);
     
     // Render achievement notifications
     achievements.render(gRenderer, font1);
@@ -476,12 +472,12 @@ void Game::spawnPowerUp()
     }
 }
 
-void Game::updatePowerUps()
+void Game::updatePowerUps(float deltaSeconds)
 {
     for (auto& powerUp : powerUps)
     {
         if (powerUp.isActive())
-            powerUp.update();
+            powerUp.update(deltaSeconds);
     }
     
     // Remove inactive power-ups
@@ -610,12 +606,12 @@ void Game::spawnObstacleNew()
     obstacles.push_back(obstacle);
 }
 
-void Game::updateObstacles()
+void Game::updateObstacles(float deltaSeconds)
 {
     for (auto& obstacle : obstacles)
     {
         if (obstacle.isActive())
-            obstacle.update(gSquareRect);
+            obstacle.update(gSquareRect, deltaSeconds);
     }
     
     // Remove inactive obstacles
