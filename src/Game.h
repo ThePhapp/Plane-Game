@@ -31,10 +31,10 @@ private:
     bool initSDL();
     void closeSDL();
     void render(float deltaSeconds);
-    void loadImagee();
+    void loadAssets();
     void loadBackground();
     void renderBackground(float deltaSeconds);
-    void loadSoundd();
+    void loadSounds();
     void resetRun();
     void damagePlayer();
     void renderPoints();

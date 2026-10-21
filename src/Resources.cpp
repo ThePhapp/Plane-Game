@@ -18,7 +18,7 @@ SDL_Texture *Game::loadTexture(const std::string &path)
     return texture;
 }
 
-void Game::loadImagee()
+void Game::loadAssets()
 {
     gSquareTexture = loadTexture("image/Player.png");
     gBulletTexture = loadTexture("image/bullet.png");
@@ -139,7 +139,7 @@ void Game::renderPoints()
     pointsTexture = nullptr;
 }
 
-void Game::loadSoundd() // load sound
+void Game::loadSounds() // load sound
 {
     for (int i = 0; i < Mix_AllocateChannels(-1); ++i)
     {

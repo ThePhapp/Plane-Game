@@ -20,9 +20,9 @@ Game::Game()
     }
 
     gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-    loadImagee();
+    loadAssets();
     loadBackground();
-    loadSoundd();
+    loadSounds();
     this->points = 0;
     currentHealth = maxHealth;
     

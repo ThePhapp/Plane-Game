@@ -51,11 +51,8 @@ Plane-Game/
 │   ├── Game.cpp
 │   ├── Game.h
 │   ├── Control.cpp
-│   ├── Control.h
-│   ├── ImageLoad.cpp
-│   ├── ImageLoad.h
-│   ├── Collision.cpp
-│   ├── Collision.h
+│   ├── Config.h
+│   ├── Resources.cpp
 │   ├── BulletObject/
 │   │   ├── Bullet.cpp
 │   │   ├── Bullet.h
@@ -68,6 +65,11 @@ Plane-Game/
 │   ├── BossObject/
 │   │   ├── BossObject.cpp
 │   │   ├── BossObject.h
+│   ├── PowerUpObject/
+│   ├── WeaponObject/
+│   ├── SaveSystem/
+│   ├── AchievementSystem/
+│   ├── LeaderboardSystem/
 │   └── include/
 │       └── SDL2/
 
@@ -80,8 +82,9 @@ Plane-Game/
 - **BossObject.cpp:** Boss logic, movement, and boss bullets.
 - **ObstacleObject.cpp:** Enemy (obstacle) logic.
 - **ExplosionObject.cpp:** Handles explosion effects.
-- **Collision.cpp:** Collision detection.
-- **ImageLoad.cpp:** Loads images, sounds, and fonts.
+- **Resources.cpp:** Loads assets, sounds, fonts, menus, and HUD elements.
+- **Config.h:** Shared screen and frame-rate configuration.
+- **SaveSystem / AchievementSystem / LeaderboardSystem:** Persistent progression and score data.
 
 ---
 
