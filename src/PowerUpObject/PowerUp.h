@@ -2,7 +2,6 @@
 #define POWERUP_H
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 
 enum PowerUpType
 {
@@ -22,7 +21,7 @@ public:
 
     void update();
     void render(SDL_Renderer* renderer);
-    void loadTexture(SDL_Renderer* renderer, const char* filePath);
+    void setTexture(SDL_Texture* value) { texture = value; }
     
     SDL_Rect getRect() const { return rect; }
     PowerUpType getType() const { return type; }

@@ -7,6 +7,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "Collision.h"
 #include <vector>
+#include <array>
 #include "BulletObject/Bullet.h"
 #include "BossObject/BossObject.h"
 #include "ExplosionObject/ExplosionObject.h"
@@ -129,7 +130,7 @@ private:
     SDL_Window *gWindow = nullptr;
     SDL_Renderer *gRenderer = nullptr;
     SDL_Texture *gSquareTexture = nullptr;
-    SDL_Texture *gBackgroundTexture;
+    SDL_Texture *gBackgroundTexture = nullptr;
     SDL_Texture *gBulletTexture = nullptr;
     SDL_Texture *textTexture = nullptr;
     SDL_Texture *gObstacleTexture = nullptr;
@@ -147,7 +148,12 @@ private:
     SDL_Rect quitButtonRect;
     SDL_Rect playAgainButtonRect;
     SDL_Rect backToMenuButtonRect;
-    TTF_Font *font1;
+    TTF_Font *font1 = nullptr;
+    TTF_Font *menuFont = nullptr;
+
+    std::array<SDL_Texture*, 4> obstacleTextures{};
+    std::array<SDL_Texture*, 5> powerUpTextures{};
+    bool sdlInitialized = false;
 
     Mix_Chunk *gShootSound = nullptr;
     Mix_Chunk *gCollision = nullptr;

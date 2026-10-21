@@ -1,5 +1,4 @@
 #include "PowerUp.h"
-#include <cstdlib>
 
 PowerUp::PowerUp()
     : texture(nullptr), active(false), speed(3), duration(5000)
@@ -36,8 +35,6 @@ PowerUp::PowerUp(int x, int y, PowerUpType pType)
 
 PowerUp::~PowerUp()
 {
-    if (texture)
-        SDL_DestroyTexture(texture);
 }
 
 void PowerUp::update()
@@ -61,15 +58,3 @@ void PowerUp::render(SDL_Renderer* renderer)
     SDL_RenderCopy(renderer, texture, nullptr, &rect);
 }
 
-void PowerUp::loadTexture(SDL_Renderer* renderer, const char* filePath)
-{
-    if (texture)
-        SDL_DestroyTexture(texture);
-    
-    SDL_Surface* surface = IMG_Load(filePath);
-    if (surface)
-    {
-        texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
-    }
-}

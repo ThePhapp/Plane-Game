@@ -25,26 +25,46 @@ void Game::loadImagee()
     if (gSquareTexture == nullptr || gBulletTexture == nullptr)
     {
         std::cout << "Failed to load textures!" << std::endl;
-        closeSDL();
     }
 
     gObstacleTexture = loadTexture("image/obstacle.png");
     if (gObstacleTexture == nullptr)
     {
         std::cout << "Failed to load obstacle texture!" << std::endl;
-        closeSDL();
+    }
+
+    obstacleTextures[ENEMY_BASIC] = gObstacleTexture;
+    obstacleTextures[ENEMY_FAST] = loadTexture("image/enemy_fast.png");
+    obstacleTextures[ENEMY_TANK] = loadTexture("image/enemy_tank.png");
+    obstacleTextures[ENEMY_KAMIKAZE] = loadTexture("image/enemy_kamikaze.png");
+    for (SDL_Texture*& texture : obstacleTextures)
+    {
+        if (texture == nullptr)
+            texture = gObstacleTexture;
     }
 
     gHealth = loadTexture("image/health.png");
     if (gHealth == nullptr)
     {
         std::cout << "Failed to load health texture!" << std::endl;
-        closeSDL();
     }
 
     // Tải hình ảnh cho boss và đạn của boss
     boss.loadBossImage(gRenderer, "image/boss.png");
     boss.loadBulletImage(gRenderer, "image/BossBullet.png");
+
+    const char* powerUpPaths[] = {
+        "image/powerup_shield.png",
+        "image/powerup_rapid.png",
+        "image/powerup_double.png",
+        "image/powerup_health.png",
+        "image/powerup_bomb.png"
+    };
+    for (std::size_t i = 0; i < powerUpTextures.size(); ++i)
+        powerUpTextures[i] = loadTexture(powerUpPaths[i]);
+
+    font1 = TTF_OpenFont("font/2.ttf", 35);
+    menuFont = TTF_OpenFont("font/2.ttf", 48);
 }
 
 void Game::loadBackground()
@@ -54,8 +74,6 @@ void Game::loadBackground()
     if (gBackgroundTexture == nullptr)
     {
         std::cout << "Failed to load background texture!" << std::endl;
-        closeSDL();
-        exit(3);
     }
     backgroundPosX = 0;
 }
@@ -80,7 +98,6 @@ void Game::renderPoints()
 {
     std::string pointString = "     Score: " + std::to_string(points) + "           Highest: " + std::to_string(highestPoint) + "                                                Level: " + std::to_string(level) +
                               "          Miss: " + std::to_string(miss) + "/4";
-    font1 = TTF_OpenFont("font/2.ttf", 35);
     if (font1 == nullptr)
     {
         std::cout << "Failed to load font: " << TTF_GetError() << std::endl;
@@ -91,7 +108,6 @@ void Game::renderPoints()
     if (textSurface == nullptr)
     {
         std::cout << "Unable to render text surface: " << TTF_GetError() << std::endl;
-        TTF_CloseFont(font1);
         return;
     }
     pointsTexture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
@@ -100,11 +116,12 @@ void Game::renderPoints()
         std::cout << "Unable to create texture from text surface: " << SDL_GetError() << std::endl;
     }
     SDL_Rect dstRect = {10, 10, textSurface->w, textSurface->h};
-    SDL_RenderCopy(gRenderer, pointsTexture, nullptr, &dstRect);
+    if (pointsTexture)
+        SDL_RenderCopy(gRenderer, pointsTexture, nullptr, &dstRect);
 
-    TTF_CloseFont(font1);
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(pointsTexture);
+    pointsTexture = nullptr;
 }
 
 void Game::loadSoundd() // load sound
@@ -271,7 +288,7 @@ void Game::renderMainMenu()
     SDL_SetRenderDrawColor(gRenderer, 255, 255, 255, 255);
     SDL_RenderDrawRect(gRenderer, &quitButtonRect);
 
-    TTF_Font* font = TTF_OpenFont("font/2.ttf", 48);
+    TTF_Font* font = menuFont;
     if (font)
     {
         SDL_Color color = {255, 255, 255, 255};
@@ -290,7 +307,6 @@ void Game::renderMainMenu()
             SDL_FreeSurface(textSurface);
             SDL_DestroyTexture(textTexture);
         }
-        TTF_CloseFont(font);
     }
 
     SDL_RenderPresent(gRenderer);

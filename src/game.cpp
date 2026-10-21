@@ -21,16 +21,13 @@ Game::Game()
     }
 
     gSquareRect = {0, SCREEN_HEIGHT / 2, SQUARE_SIZE, SQUARE_SIZE};
-    for (auto &bullet : bullets)
-    {
-        bullet.rect = {SCREEN_WIDTH / 2 - SQUARE_SIZE / 2, SCREEN_HEIGHT / 2, 50, 50};
-    }
     loadImagee();
     loadBackground();
     loadSoundd();
     this->points = 0;
     this->miss = 0;
     currentHealth = maxHealth;
+    gStartTime = SDL_GetTicks();
     
     // Initialize new systems
     hasShield = false;
@@ -196,6 +193,7 @@ bool Game::initSDL()
         return false;
     }
 
+    sdlInitialized = true;
     return true;
 }
 
@@ -384,30 +382,82 @@ void Game::applyLevelSettings()
 
 void Game::closeSDL()
 {
-    SDL_DestroyRenderer(gRenderer);
-    SDL_DestroyWindow(gWindow);
+    if (!sdlInitialized)
+        return;
+
+    if (font1)
+    {
+        TTF_CloseFont(font1);
+        font1 = nullptr;
+    }
+    if (menuFont)
+    {
+        TTF_CloseFont(menuFont);
+        menuFont = nullptr;
+    }
+
+    for (SDL_Texture*& texture : powerUpTextures)
+    {
+        if (texture)
+        {
+            SDL_DestroyTexture(texture);
+            texture = nullptr;
+        }
+    }
+    for (SDL_Texture*& texture : obstacleTextures)
+    {
+        if (texture && texture != gObstacleTexture)
+        {
+            SDL_DestroyTexture(texture);
+            texture = nullptr;
+        }
+    }
 
     SDL_DestroyTexture(gSquareTexture);
     SDL_DestroyTexture(gBackgroundTexture);
     SDL_DestroyTexture(gBulletTexture);
     SDL_DestroyTexture(textTexture);
     SDL_DestroyTexture(gObstacleTexture);
-    SDL_DestroyTexture(gBulletTexture);
+    SDL_DestroyTexture(gHealth);
     SDL_DestroyTexture(gMenuTexture);
+    gSquareTexture = nullptr;
+    gBackgroundTexture = nullptr;
+    gBulletTexture = nullptr;
+    textTexture = nullptr;
+    gObstacleTexture = nullptr;
+    gHealth = nullptr;
+    gMenuTexture = nullptr;
 
     Mix_FreeChunk(gShootSound);
     Mix_FreeChunk(gCollision);
     Mix_FreeChunk(gSound);
     Mix_FreeChunk(gShotTrung);
     Mix_FreeChunk(gGameOver);
-    SDL_DestroyTexture(gSquareTexture);
-    SDL_DestroyTexture(gBulletTexture);
-    SDL_DestroyTexture(gMenuTexture);
+    Mix_FreeChunk(gWin);
+    gShootSound = nullptr;
+    gCollision = nullptr;
+    gSound = nullptr;
+    gShotTrung = nullptr;
+    gGameOver = nullptr;
+    gWin = nullptr;
 
+    if (gRenderer)
+    {
+        SDL_DestroyRenderer(gRenderer);
+        gRenderer = nullptr;
+    }
+    if (gWindow)
+    {
+        SDL_DestroyWindow(gWindow);
+        gWindow = nullptr;
+    }
+
+    Mix_CloseAudio();
     IMG_Quit();
-    SDL_Quit();
     TTF_Quit();
     Mix_Quit();
+    SDL_Quit();
+    sdlInitialized = false;
 }
 
 // ==================== POWER-UP FUNCTIONS ====================
@@ -421,31 +471,8 @@ void Game::spawnPowerUp()
         int y = rand() % (SCREEN_HEIGHT - 100) + 50;
         PowerUpType type = static_cast<PowerUpType>(rand() % 5);
         
-        PowerUp powerUp(x, y, type);
-        
-        // Load texture based on type
-        const char* texturePath;
-        switch(type)
-        {
-            case POWERUP_SHIELD:
-                texturePath = "image/powerup_shield.png";
-                break;
-            case POWERUP_RAPID_FIRE:
-                texturePath = "image/powerup_rapid.png";
-                break;
-            case POWERUP_DOUBLE_SHOT:
-                texturePath = "image/powerup_double.png";
-                break;
-            case POWERUP_HEALTH:
-                texturePath = "image/powerup_health.png";
-                break;
-            case POWERUP_BOMB:
-                texturePath = "image/powerup_bomb.png";
-                break;
-        }
-        
-        powerUp.loadTexture(gRenderer, texturePath);
-        powerUps.push_back(powerUp);
+        powerUps.emplace_back(x, y, type);
+        powerUps.back().setTexture(powerUpTextures[type]);
     }
 }
 
@@ -579,25 +606,7 @@ void Game::spawnObstacleNew()
     
     Obstacle obstacle(x, y, type);
     
-    // Load texture based on type
-    const char* texturePath;
-    switch(type)
-    {
-        case ENEMY_BASIC:
-            texturePath = "image/obstacle.png";
-            break;
-        case ENEMY_FAST:
-            texturePath = "image/enemy_fast.png";
-            break;
-        case ENEMY_TANK:
-            texturePath = "image/enemy_tank.png";
-            break;
-        case ENEMY_KAMIKAZE:
-            texturePath = "image/enemy_kamikaze.png";
-            break;
-    }
-    
-    obstacle.loadTexture(gRenderer, texturePath);
+    obstacle.setTexture(obstacleTextures[type]);
     obstacles.push_back(obstacle);
 }
 

@@ -1,5 +1,4 @@
 #include "Obstacle.h"
-#include <cstdlib>
 #include <cmath>
 #include "Game.h"
 
@@ -53,8 +52,6 @@ Obstacle::Obstacle(int x, int y, EnemyType eType)
 
 Obstacle::~Obstacle()
 {
-    if (texture)
-        SDL_DestroyTexture(texture);
 }
 
 void Obstacle::update(SDL_Rect playerRect)
@@ -101,19 +98,6 @@ void Obstacle::render(SDL_Renderer* renderer)
         SDL_Rect healthBar = {rect.x, rect.y - 10, barWidth, 5};
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         SDL_RenderFillRect(renderer, &healthBar);
-    }
-}
-
-void Obstacle::loadTexture(SDL_Renderer* renderer, const char* filePath)
-{
-    if (texture)
-        SDL_DestroyTexture(texture);
-    
-    SDL_Surface* surface = IMG_Load(filePath);
-    if (surface)
-    {
-        texture = SDL_CreateTextureFromSurface(renderer, surface);
-        SDL_FreeSurface(surface);
     }
 }
 
